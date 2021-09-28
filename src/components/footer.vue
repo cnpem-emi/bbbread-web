@@ -11,13 +11,13 @@
         wiki
       </v-btn>
       <v-btn
-        href="https://github.com/lnls-sirius/bbbread/blob/master/BBBread.py"
+        href="https://github.com/cnpem-iot/bbbread-frontend"
         color="white"
         text
         rounded
         class="my-2"
       >
-        github
+        git
       </v-btn>
       <v-btn
         href="mailto:guilherme.freitas@cnpem.br"
@@ -28,9 +28,6 @@
       >
         contact
       </v-btn>
-      <v-col class="primary darken-3 py-4 text-center white--text" cols="12">
-        {{ new Date().getFullYear() }} — <strong>CNPEM</strong>
-      </v-col>
     </v-row>
   </v-footer>
 </template>
