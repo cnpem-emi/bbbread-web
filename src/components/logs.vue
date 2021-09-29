@@ -1,14 +1,14 @@
 <template>
   <v-container fluid>
     <toolbar
-      @search="updateSearch"
-      @refresh="getAll"
+      @search="s => search = s"
+      @refresh="get_all"
       @date="update_date_range"
       v-bind:search="search"
     />
     <v-data-table
       :headers="headers"
-      :items="filteredKeys"
+      :items="filtered_keys"
       :search="search"
       :loading="loading_bbbs"
       :sort-by.sync="sortBy"
@@ -28,7 +28,6 @@ import toolbar from "./logs_toolbar";
 
 export default {
   components: { toolbar },
-  props: ["settings"],
   data() {
     return {
       filter: {},
@@ -49,7 +48,7 @@ export default {
     };
   },
   computed: {
-    filteredKeys() {
+    filtered_keys() {
       return this.items.filter(
         (i) =>
           ([i.ip, i.hostname, i.message].some((e) => e.includes(this.search)) &&
@@ -63,12 +62,12 @@ export default {
     update_date_range(raw_date) {
       this.date_range = raw_date;
     },
-    async getAll() {
+    async get_all() {
       const items = [];
       const bbbs = [];
       this.loading_bbbs = true;
 
-      const response = await this.sendCommand("KEYS/BBB:*:Logs");
+      const response = await this.send_command("KEYS/BBB:*:Logs");
       let command = escape(
         `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${response.KEYS.length}/`
       );
@@ -82,7 +81,7 @@ export default {
         });
       }
 
-      const reply = await this.sendCommand(command);
+      const reply = await this.send_command(command);
 
       for (let bbb = 0; bbb < response.KEYS.length; bbb++) {
         for (let log = 0; log < reply.EVALSHA[bbb].length; log++) {
@@ -101,7 +100,7 @@ export default {
       this.items = items;
       this.loading_bbbs = false;
     },
-    getColor(item) {
+    get_color(item) {
       switch (item) {
         case "Disconnected":
           return "red";
@@ -111,14 +110,10 @@ export default {
           return "yellow";
       }
     },
-
-    updateSearch: function (value) {
-      this.search = value;
-    },
   },
-
-  async created() {
-    this.getAll();
+  created() {
+    this.get_all();
+    this.interval = setInterval(this.get_all, 10000);
   },
 };
 </script>

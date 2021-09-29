@@ -1,10 +1,13 @@
 <template>
   <v-container fluid>
-    <toolbar @search="updateSearch" @refresh="getAll" v-bind:search="search" />
+    <toolbar
+      @search="s => search = s"
+      @refresh="get_all"
+      v-bind:search="search" />
     <v-data-table
       show-expand
       :headers="headers"
-      :items="filteredBeagles"
+      :items="filtered_beagles"
       :search="search.text"
       :loading="loading_bbbs"
       item-key="key"
@@ -13,7 +16,7 @@
       v-model="selected"
     >
       <template v-slot:item.status="{ item }">
-        <v-chip :color="getColor(item.status)" dark>
+        <v-chip :color="get_color(item.status)" dark>
           {{ item.status }}
         </v-chip>
       </template>
@@ -26,7 +29,7 @@
             color="red"
             :disabled="$store.state.account === undefined"
             dark
-            @click="performAction(false, action)"
+            @click="perform_action(false, action)"
             style="margin: 10px 10px 10px 0; flex-shrink: 1"
             >{{ action }}</v-btn
           >
@@ -55,7 +58,7 @@
               class="white--text"
               color="red"
               :disabled="$store.state.account === undefined"
-              @click="performAction(item, action)"
+              @click="perform_action(item, action)"
               style="margin-right: 10px; flex-shrink: 1"
               >{{ action }}</v-btn
             >
@@ -67,7 +70,7 @@
     <services
       v-bind:items="selected"
       :dialog="service_dialog"
-      @closeDialog="closeServDialog"
+      @closeDialog="service_dialog = false"
   /></v-container>
 </template>
 
@@ -98,7 +101,7 @@ const detailToEquipment = {
 
 export default {
   components: { toolbar, services },
-  props: ["settings", "refresh"],
+  props: ["refresh"],
   data() {
     return {
       filter: {},
@@ -144,7 +147,7 @@ export default {
     };
   },
   computed: {
-    filteredBeagles() {
+    filtered_beagles() {
       return this.items.filter((i) => {
         return (
           (i.hostname.indexOf(this.search.text) !== -1 ||
@@ -163,14 +166,14 @@ export default {
       if (!selected.value) this.selected = [];
       else this.selected = selected.items;
     },
-    async getAll() {
+    async get_all() {
       this.loading_bbbs = true;
       const items = [];
       const fetches = [];
       let raw_items = [];
       const offset = new Date().getTimezoneOffset() * 60 * 1000;
 
-      const response = await this.sendCommand(`KEYS/BBB:*`);
+      const response = await this.send_command(`KEYS/BBB:*`);
       const bbbs = response.KEYS.filter(
         (x) => !x.includes(":Command") && !x.includes(":Logs")
       );
@@ -195,7 +198,7 @@ export default {
           });
         }
 
-        fetches.push(this.sendCommand(command));
+        fetches.push(this.send_command(command));
       }
 
       const reply = await Promise.all(fetches);
@@ -239,10 +242,9 @@ export default {
       }
 
       this.items = items;
-      console.log(this.items);
       this.loading_bbbs = false;
     },
-    async performAction(item, action) {
+    async perform_action(item, action) {
       if (item) this.selected = [item];
       else item = this.selected[0];
 
@@ -270,19 +272,19 @@ export default {
           switch (action) {
             case "Delete":
               for (let beagle of this.selected) {
-                commands.push(this.sendCommand(`DEL/${beagle.key}`, token));
+                commands.push(this.send_command(`DEL/${beagle.key}`, token));
                 commands.push(
-                  this.sendCommand(`DEL/${beagle.key}:Command`, token)
+                  this.send_command(`DEL/${beagle.key}:Command`, token)
                 );
                 commands.push(
-                  this.sendCommand(`DEL/${beagle.key}:Logs`, token)
+                  this.send_command(`DEL/${beagle.key}:Logs`, token)
                 );
               }
               break;
             case "Reboot":
               for (let beagle of this.selected) {
                 commands.push(
-                  this.sendCommand(`RPUSH/${beagle.key}:Command/1`, token)
+                  this.send_command(`RPUSH/${beagle.key}:Command/1`, token)
                 );
               }
               break;
@@ -291,7 +293,7 @@ export default {
           const reply = await Promise.all(commands);
           if (reply !== undefined) {
             this.$store.commit(
-              "showSnackbar",
+              "show_snackbar",
               `Successfully applied changes to ${
                 this.selected[0]["hostname"]
               } ${
@@ -305,11 +307,10 @@ export default {
       } else {
         this.service_dialog = true;
       }
+
+      this.get_all();
     },
-    closeServDialog() {
-      this.service_dialog = false;
-    },
-    getColor(item) {
+    get_color(item) {
       switch (item) {
         case "Disconnected":
           return "red";
@@ -318,14 +319,11 @@ export default {
         default:
           return "orange";
       }
-    },
-    updateSearch(value) {
-      this.search.text = value;
-    },
+    }
   },
-
-  async created() {
-    this.getAll();
+  created() {
+    this.get_all();
+    this.interval = setInterval(this.get_all, 10000);
   },
 };
 </script>

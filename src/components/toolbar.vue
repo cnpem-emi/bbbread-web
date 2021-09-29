@@ -78,7 +78,7 @@
 
 <script>
 export default {
-  props: ["settings", "search"],
+  props: ["search"],
   data() {
     return {
       filter: {},

@@ -61,7 +61,7 @@ export default {
       for (let beagle of this.items)
         for (let service of this.selected)
           promises.push(
-            this.sendCommand(
+            this.send_command(
               `RPUSH/${beagle.key}:Command/${action};${service}`,
               token
             )
@@ -69,7 +69,7 @@ export default {
 
       if (Promise.all(promises)) {
         this.$store.commit(
-          "showSnackbar",
+          "show_snackbar",
           `Successfully applied changes to ${this.items[0]["hostname"]} ${
             this.items.length > 1
               ? `and other ${this.items.length - 1} nodes`
@@ -79,7 +79,7 @@ export default {
         this.$emit("closeDialog");
       } else {
         this.$store.commit(
-          "showSnackbar",
+          "show_snackbar",
           "Failed to apply actions (check your authentication)"
         );
       }

@@ -21,17 +21,17 @@
           </v-tab>
           <v-tab-item>
             <v-card flat>
-              <status v-bind:settings="settings" />
+              <status/>
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <logs v-bind:settings="settings" />
+              <logs/>
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <ps v-bind:settings="settings" />
+              <ps/>
             </v-card>
           </v-tab-item>
         </v-tabs>
@@ -63,7 +63,7 @@ import logs from "./components/logs";
 import ft from "./components/footer";
 import confirm from "./components/confirm";
 import login from "./components/login";
-import ps from "./components/ps.vue";
+import ps from "./components/ps";
 
 export default {
   name: "App",
@@ -77,20 +77,12 @@ export default {
     ps,
   },
 
-  data: () => ({
-    settings: {
-      sortDesc: false,
-      sortBy: "name",
-      search: "",
-    },
-  }),
-
   async created() {
     const msalInstance = new PublicClientApplication(
       this.$store.state.msalConfig
     );
 
-    this.$store.commit("setInstance", msalInstance);
+    this.$store.commit("set_instance", msalInstance);
   },
   async mounted() {
     this.$root.$confirm = this.$refs.confirm.open;
@@ -100,7 +92,7 @@ export default {
       return;
     }
     accounts[0].initials = this.getInitials(accounts[0]);
-    this.$store.commit("setAccount", accounts[0]);
+    this.$store.commit("set_account", accounts[0]);
   },
   methods: {
     async login() {
@@ -109,13 +101,13 @@ export default {
         .then(() => {
           const accounts = this.$store.state.msalInstance.getAllAccounts();
           accounts[0].initials = this.getInitials(accounts[0]);
-          this.$store.commit("setAccount", accounts[0]);
+          this.$store.commit("set_account", accounts[0]);
         })
         .catch((error) => {
           console.error(`Error during authentication: ${error}`);
         });
       this.$store.commit(
-        "showSnackbar",
+        "show_snackbar",
         `Logged in as ${this.$store.state.account.username}`
       );
     },

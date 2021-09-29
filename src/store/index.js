@@ -22,23 +22,23 @@ const store = new Vuex.Store({
         url: "10.0.38.46"
     },
     mutations: {
-        setAccessToken(state, token) {
+        set_token(state, token) {
             state.accessToken = token;
         },
-        setInstance(state, msalInstance) {
+        set_instance(state, msalInstance) {
             state.msalInstance = msalInstance;
         },
-        setAccount(state, account) {
+        set_account(state, account) {
             state.account = account;
         },
-        setUrl(state, url) {
+        set_url(state, url) {
             state.url = url;
         },
-        showSnackbar(state, message) {
+        show_snackbar(state, message) {
             state.snackbar = true;
             state.message = message;
         },
-        hideSnackbar(state) {
+        hide_snackbar(state) {
             state.snackbar = false;
         }
     }

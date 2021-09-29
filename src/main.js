@@ -17,21 +17,21 @@ if (window.location.host === "vpn.cnpem.br") {
     host = match[1];
   }
 } else {
-    host = window.location.host;
+  host = window.location.host;
 }
 if (
-      host.includes("0.0.0.0") ||
-      host.includes("localhost") ||
-      host.includes("10.0.38.50") ||
-      host.includes("10.0.6.70")
-   ) {
-   host = "10.0.38.46";
-   console.log("__`o##o>__ DEBUG SERVER. Setting host to 10.0.38.46");
+  host.includes("0.0.0.0") ||
+  host.includes("localhost") ||
+  host.includes("10.0.38.50") ||
+  host.includes("10.0.6.70")
+) {
+  host = "10.0.38.46";
+  console.log("__`o##o>__ DEBUG SERVER. Setting host to 10.0.38.46");
 }
 
 Vue.mixin({
   methods: {
-    async sendCommand(command, token = "") {
+    async send_command(command, token = "") {
       const response = await fetch(`https://${this.$store.state.url}/archiver-generic-backend/bypass?${this.$store.state.url}:7379/${command}`, {
         method: "GET",
         headers: {
@@ -50,4 +50,4 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 
-store.commit("setUrl", host);
+store.commit("set_url", host);
