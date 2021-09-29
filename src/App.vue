@@ -15,6 +15,10 @@
             <v-icon left> mdi-clock-alert-outline </v-icon>
             Logs
           </v-tab>
+          <v-tab>
+            <v-icon left> mdi-lightning-bolt-outline </v-icon>
+            Power Supplies
+          </v-tab>
           <v-tab-item>
             <v-card flat>
               <status v-bind:settings="settings" />
@@ -25,16 +29,26 @@
               <logs v-bind:settings="settings" />
             </v-card>
           </v-tab-item>
+          <v-tab-item>
+            <v-card flat>
+              <ps v-bind:settings="settings" />
+            </v-card>
+          </v-tab-item>
         </v-tabs>
       </v-card>
     </v-main>
     <ft />
     <confirm ref="confirm" />
-    <v-snackbar v-model="$store.state.snackbar" timeout="4000" color="white" light>
+    <v-snackbar
+      v-model="$store.state.snackbar"
+      timeout="4000"
+      color="white"
+      light
+    >
       {{ $store.state.message }}
 
       <template v-slot:action="{ attrs }">
-        <v-btn icon text v-bind="attrs" @click="$store.commit('hideSnackbar');">
+        <v-btn icon text v-bind="attrs" @click="$store.commit('hideSnackbar')">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </template>
@@ -49,6 +63,7 @@ import logs from "./components/logs";
 import ft from "./components/footer";
 import confirm from "./components/confirm";
 import login from "./components/login";
+import ps from "./components/ps.vue";
 
 export default {
   name: "App",
@@ -59,6 +74,7 @@ export default {
     ft,
     confirm,
     login,
+    ps,
   },
 
   data: () => ({

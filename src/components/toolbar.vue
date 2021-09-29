@@ -33,6 +33,7 @@
           chips
           v-model="search.equipments"
           :items="equipments"
+          :disabled="search.equipments === undefined"
         >
           <template v-slot:selection="{ attrs, item, parent, selected }">
             <v-chip v-bind="attrs" :input-value="selected" label small>

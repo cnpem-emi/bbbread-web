@@ -17,6 +17,11 @@
           {{ item.status }}
         </v-chip>
       </template>
+      <template v-slot:item.ps_names="{ item }">
+        <v-chip small v-for="ps in item.ps_names" :key="ps">
+          {{ ps }}
+        </v-chip>
+      </template>
 
       <template v-slot:footer v-if="selected.length > 0">
         <div style="position: absolute" class="pa-0 pl-2">
@@ -80,21 +85,8 @@ function arrayToDict(array) {
   for (let i = 0; i < array.length; i++) {
     dict[array[i]] = array[++i];
   }
-
   return dict;
 }
-
-const detailToEquipment = {
-  PRU_POWER_SUPPLY: "Power Supply",
-  SIMAR: "SIMAR",
-  COUNTING_PRU: "CountingPRU",
-  THERMO_PROBE: "Thermo Probe",
-  MKS: "MKS",
-  AGILENT4UHV: "4UHV",
-  SPIXCONV: "SPIxCONV",
-  MBTEMP: "MBTemp",
-  "No Device": "No Device",
-};
 
 export default {
   components: { toolbar, services },
@@ -112,33 +104,24 @@ export default {
         { text: "Nameservers", value: "nameservers" },
         { text: "IP Type", value: "ip_type" },
         { text: "Sector", value: "sector" },
-        { text: "Equipment", value: "equipment" },
+        { text: "UDC", value: "udc" },
       ],
       headers: [
         { text: "IP", align: "start", value: "ip" },
         { text: "Hostname", value: "hostname" },
         { text: "Status", value: "status" },
+        { text: "Power Supplies", value: "ps_names" },
         { text: "Role", value: "role" },
         { value: "data-table-expand" },
       ],
       items: [],
       symbols: {},
       loading_bbbs: true,
+      ps: { name: [] },
       search: {
         text: "",
         statuses: ["Disconnected", "Connected", "Moved"],
         room: "All",
-        equipments: [
-          "Power Supply",
-          "SIMAR",
-          "CountingPRU",
-          "Thermo Probe",
-          "MKS",
-          "4UHV",
-          "SPIxCONV",
-          "MBTemp",
-          "No Device",
-        ],
         ip_types: ["Static", "DHCP", "Undetermined"],
       },
     };
@@ -147,99 +130,126 @@ export default {
     filteredBeagles() {
       return this.items.filter((i) => {
         return (
+          i.status !== undefined &&
           (i.hostname.indexOf(this.search.text) !== -1 ||
-            i.ip.indexOf(this.search.text) !== -1) &&
+            i.ip.indexOf(this.search.text) !== -1 ||
+            i.ps_names.join("").includes(this.search.text)) &&
           this.search.statuses.some((j) => i.status.includes(j)) &&
           this.search.ip_types.includes(i.ip_type) &&
-          (this.search.room === i.sector || this.search.room === "All") &&
-          (this.search.equipments.includes(i.equipment) ||
-            (this.search.equipments.includes("No Device") && !i.equipment))
+          (this.search.room === i.sector || this.search.room === "All")
         );
       });
     },
   },
   methods: {
+    async update_pwr_names() {
+      let response = await fetch(
+        "https://raw.githubusercontent.com/lnls-sirius/control-system-constants/master/beaglebone/ip-list.txt"
+      );
+      response = await response.text();
+
+      for (let bbb of response
+        .split("\n")
+        .filter((i) => i.charAt(0) !== "#" && i)) {
+        const ps_bbb = bbb.replace(/  +/g, " ").split(" ");
+        this.items.push({
+          ip: ps_bbb[1],
+          hostname: ps_bbb[0],
+          key: `BBB:${ps_bbb[1]}:${ps_bbb[0].replace(":", "--")}`,
+        });
+      }
+
+      response = await fetch(
+        "https://raw.githubusercontent.com/lnls-sirius/control-system-constants/master/beaglebone/beaglebone-udc.txt"
+      );
+      response = await response.text();
+
+      for (let udc of response
+        .split("\n")
+        .filter((i) => i.charAt(0) !== "#" && i)) {
+        const name_udc = udc.replace(/  +/g, " ").split(" ");
+        this.items[
+          this.items.findIndex((item) => item["hostname"] === name_udc[0])
+        ]["udc"] = name_udc.slice(1);
+      }
+
+      response = await fetch(
+        "https://raw.githubusercontent.com/lnls-sirius/control-system-constants/master/beaglebone/udc-bsmp.txt"
+      );
+      response = await response.text();
+
+      for (let udc of response
+        .split("\n")
+        .filter((i) => i.charAt(0) !== "#" && i)) {
+        const udc_name = udc.replace(/  +/g, " ").split(" ");
+        this.items[
+          this.items.findIndex((item) => item["udc"].includes(udc_name[0]))
+        ]["ps_names"] = udc_name.filter((_, i) => i > 0 && i % 2 == 1);
+      }
+    },
     toggle_select(selected) {
       if (!selected.value) this.selected = [];
       else this.selected = selected.items;
     },
     async getAll() {
-      this.loading_bbbs = true;
-      const items = [];
       const fetches = [];
-      let raw_items = [];
       const offset = new Date().getTimezoneOffset() * 60 * 1000;
 
-      const response = await this.sendCommand(`KEYS/BBB:*`);
-      const bbbs = response.KEYS.filter(
-        (x) => !x.includes(":Command") && !x.includes(":Logs")
-      );
-
-      for (let i = 0; i < bbbs.length; i += 200) {
+      for (let i = 0; i < this.items.length; i += 200) {
         let command = escape(
           `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${
-            i + 200 > bbbs.length ? bbbs.length - i : 200
+            i + 200 > this.items.length ? this.items.length - i : 200
           }/`
         ); //Lua is behaving weirdly with the + operator.
-        for (let key of bbbs.slice(
-          i,
-          i + 200 > bbbs.length ? bbbs.length : i + 200
-        )) {
-          command += `${key}/`;
-          const split = key.split(":");
 
-          items.push({
-            ip: split[1],
-            hostname: split.slice(2).join(":"),
-            key: key,
-          });
+        for (let item of this.items.slice(
+          i,
+          i + 200 > this.items.length ? this.items.length : i + 200
+        )) {
+          command += `${item["key"]}/`;
         }
 
         fetches.push(this.sendCommand(command));
       }
 
       const reply = await Promise.all(fetches);
+      let raw_items = [];
       for (let arr of reply) raw_items = raw_items.concat(arr.EVALSHA);
 
-      for (let r in raw_items) {
-        const dict = arrayToDict(raw_items[r]);
-        const role = dict["matching_bbb"]
-          ? dict["matching_bbb"].charAt(0).toUpperCase() +
-            dict["matching_bbb"].slice(1)
-          : "Primary";
+      for (let i in raw_items) {
+        if (raw_items[i].length > 0) {
+          const dict = arrayToDict(raw_items[i]);
 
-        const sector = dict["sector"].replace("Sala", "IA-");
-        let ip_type = "Static";
+          let ip_type = "Static";
+          if (dict["ip_type"] == "0.0.0.0") ip_type = "Undetermined";
+          else if (dict["ip_type"] == "dhcp") ip_type = "DHCP";
 
-        if (dict["ip_type"] == "0.0.0.0") ip_type = "Undetermined";
-        else if (dict["ip_type"] == "dhcp") ip_type = "DHCP";
+          const role = dict["matching_bbb"]
+            ? dict["matching_bbb"].charAt(0).toUpperCase() +
+              dict["matching_bbb"].slice(1)
+            : "Primary";
 
-        items[r] = {
-          ip: items[r].ip,
-          key: items[r].key,
-          hostname: items[r].hostname,
-          role: role,
-          status:
-            dict["state_string"].substring(0, 3) === "BBB"
-              ? `Moved - ${dict["state_string"].substring(4)}`
-              : dict["state_string"],
-          last_seen: !isNaN(dict["ping_time"])
-            ? new Date(parseInt(dict["ping_time"] * 1000 - offset))
-                .toISOString()
-                .replace(/Z|T/g, " ")
-            : "-",
-          nameservers: dict["nameservers"],
-          ip_type: ip_type,
-          sector: sector === "Outros" ? "Others" : sector,
-          equipment:
-            detailToEquipment[
-              dict["details"].substring(0, dict["details"].indexOf(" "))
-            ],
-        };
+          const sector = dict["sector"].replace("Sala", "IA-");
+
+          Object.assign(this.items[i], {
+            role: role,
+            status:
+              dict["state_string"].substring(0, 3) === "BBB"
+                ? `Moved - ${dict["state_string"].substring(4)}`
+                : dict["state_string"],
+            last_seen: !isNaN(dict["ping_time"])
+              ? new Date(parseInt(dict["ping_time"] * 1000 - offset))
+                  .toISOString()
+                  .replace(/Z|T/g, " ")
+              : "-",
+            nameservers: dict["nameservers"],
+            ip_type: ip_type,
+            sector: sector === "Outros" ? "Others" : sector,
+          });
+        }
       }
 
-      this.items = items;
-      console.log(this.items);
+      this.items = this.items.filter((item) => item["status"] !== undefined);
       this.loading_bbbs = false;
     },
     async performAction(item, action) {
@@ -325,6 +335,7 @@ export default {
   },
 
   async created() {
+    await this.update_pwr_names();
     this.getAll();
   },
 };
