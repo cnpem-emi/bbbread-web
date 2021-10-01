@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <toolbar @search="s => search = s" @refresh="get_all" v-bind:search="search" />
+    <toolbar @search="update_search" @refresh="get_all" v-bind:search="search" />
     <v-data-table
       show-expand
       :headers="headers"
@@ -328,6 +328,9 @@ export default {
         default:
           return "orange";
       }
+    },
+    update_search(search) {
+      this.search.text = search;
     }
   },
   created() {

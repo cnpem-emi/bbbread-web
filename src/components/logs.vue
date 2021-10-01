@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <toolbar
-      @search="s => search = s"
+      @search="update_search"
       @refresh="get_all"
       @date="update_date_range"
       v-bind:search="search"
@@ -110,6 +110,9 @@ export default {
           return "yellow";
       }
     },
+    update_search(search) {
+      this.search.text = search;
+    }
   },
   created() {
     this.get_all();
