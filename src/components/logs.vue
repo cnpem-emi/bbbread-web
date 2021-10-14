@@ -91,8 +91,6 @@ export default {
       let raw_items = [];
       for (let arr of reply) raw_items = raw_items.concat(arr.EVALSHA);
 
-      console.log(raw_items);
-
       for (let bbb = 0; bbb < bbbs.length; bbb++) {
         for (let log = 0; log < raw_items[bbb].length; log++) {
           items.push({
@@ -104,8 +102,6 @@ export default {
               .replace(/Z|T/g, " "),
             message: raw_items[bbb][log],
           });
-
-          console.log(bbbs[bbb]);
         }
       }
 
