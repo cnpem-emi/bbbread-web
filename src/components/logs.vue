@@ -64,36 +64,48 @@ export default {
     },
     async get_all() {
       const items = [];
-      const bbbs = [];
+      const fetches = [];
       this.loading_bbbs = true;
 
-      const response = await this.send_command("KEYS/BBB:*:Logs");
-      let command = escape(
-        `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${response.KEYS.length}/`
-      );
-      for (let key of response.KEYS) {
-        command += `${key}/`;
-        const split = key.split(":");
-        bbbs.push({
-          ip: split[1],
-          hostname: split.slice(2, -1).join(":"),
-          key: key,
-        });
+      let bbbs = await this.send_command(`KEYS/BBB:*:Logs`);
+      bbbs = bbbs.KEYS;
+
+      for (let i = 0; i < bbbs.length; i += 200) {
+        let command = escape(
+          `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${
+            i + 200 > bbbs.length ? bbbs.length - i : 200
+          }/`
+        ); //Lua is behaving weirdly with the + operator.
+        for (let key of bbbs.slice(
+          i,
+          i + 200 > bbbs.length ? bbbs.length : i + 200
+        )) {
+          command += `${key}/`;
+        }
+
+        fetches.push(this.send_command(command));
       }
 
-      const reply = await this.send_command(command);
+      const reply = await Promise.all(fetches);
 
-      for (let bbb = 0; bbb < response.KEYS.length; bbb++) {
-        for (let log = 0; log < reply.EVALSHA[bbb].length; log++) {
+      let raw_items = [];
+      for (let arr of reply) raw_items = raw_items.concat(arr.EVALSHA);
+
+      console.log(raw_items);
+
+      for (let bbb = 0; bbb < bbbs.length; bbb++) {
+        for (let log = 0; log < raw_items[bbb].length; log++) {
           items.push({
-            ip: bbbs[bbb]["ip"],
-            hostname: bbbs[bbb]["hostname"],
-            key: bbbs[bbb]["key"],
-            date: new Date(parseInt(reply.EVALSHA[bbb][log++]) * 1000)
+            ip: bbbs[bbb].split(":")[1],
+            hostname: bbbs[bbb].split(":")[2],
+            key: bbbs[bbb],
+            date: new Date(parseInt(raw_items[bbb][log++]) * 1000)
               .toISOString()
               .replace(/Z|T/g, " "),
-            message: reply.EVALSHA[bbb][log],
+            message: raw_items[bbb][log],
           });
+
+          console.log(bbbs[bbb]);
         }
       }
 
@@ -112,7 +124,7 @@ export default {
     },
     update_search(search) {
       this.search.text = search;
-    }
+    },
   },
   created() {
     this.get_all();
