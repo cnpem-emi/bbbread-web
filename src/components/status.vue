@@ -179,6 +179,7 @@ export default {
       );
 
       for (let i = 0; i < bbbs.length; i += 200) {
+        //local r = {}; for _, v in pairs(KEYS) do r[#r - -1] = redis.call('HGETALL', v) end; return r
         let command = escape(
           `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${
             i + 200 > bbbs.length ? bbbs.length - i : 200
@@ -210,8 +211,10 @@ export default {
           ? dict["matching_bbb"].charAt(0).toUpperCase() +
             dict["matching_bbb"].slice(1)
           : "Primary";
+        let sector = "None";
 
-        const sector = dict["sector"].replace("Sala", "IA-");
+        if ("sector" in dict) sector = dict["sector"].replace("Sala", "IA-");
+
         let ip_type = "Static";
 
         if (dict["ip_type"] == "0.0.0.0") ip_type = "Undetermined";

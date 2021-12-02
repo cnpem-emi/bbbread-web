@@ -1,6 +1,9 @@
 <template>
   <v-container fluid>
-    <toolbar @search="update_search" @refresh="get_all" v-bind:search="search" />
+    <toolbar
+      @search="update_search"
+      @refresh="get_all"
+      v-bind:search="search" />
     <v-data-table
       show-expand
       :headers="headers"
@@ -183,7 +186,9 @@ export default {
         .filter((i) => i.charAt(0) !== "#" && i)) {
         const udc_name = udc.replace(/  +/g, " ").split(" ");
         this.items[
-          this.items.findIndex((item) => item["udc"].includes(udc_name[0]))
+          this.items.findIndex((item) =>
+            (item.udc || "None").includes(udc_name[0])
+          )
         ]["ps_names"] = udc_name.filter((_, i) => i > 0 && i % 2 == 1);
       }
     },
@@ -331,7 +336,7 @@ export default {
     },
     update_search(search) {
       this.search.text = search;
-    }
+    },
   },
   created() {
     this.get_all();
