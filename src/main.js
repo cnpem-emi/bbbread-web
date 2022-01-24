@@ -23,7 +23,7 @@ if (
   host.includes("0.0.0.0") ||
   host.includes("localhost") ||
   host.includes("10.0.38.50") ||
-  host.includes("10.0.6.70")
+  host.includes("10.0.6.50")
 ) {
   host = "10.0.38.46";
   console.log("__`o##o>__ DEBUG SERVER. Setting host to 10.0.38.46");
@@ -32,12 +32,13 @@ if (
 Vue.mixin({
   methods: {
     async send_command(command, token = "") {
-      const response = await fetch(`https://${this.$store.state.url}/archiver-generic-backend/bypass?${this.$store.state.url}:7379/${command}`, {
+      let options = {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${token.accessToken}`,
-        },
-      });
+      };
+
+      if (token)
+        options.headers = { Authorization: `Bearer ${token.accessToken}` }
+      const response = await fetch(`https://${this.$store.state.url}/archiver-generic-backend/bypass?${this.$store.state.url}:7379/${command}`, options);
 
       return response.json();
     },
