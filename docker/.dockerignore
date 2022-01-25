@@ -1,0 +1,13 @@
+.dockerignore
+.eslintrc.json
+.git
+.gitignore
+.prettierignore
+.prettierrc
+Dockerfile
+LICENSE
+docker
+readme_data
+node_modules
+README.md
+.env.example
