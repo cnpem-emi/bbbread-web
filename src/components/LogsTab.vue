@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <toolbar
+    <LogsToolbar
       @search="update_search"
       @refresh="get_all"
       @date="update_date_range"
@@ -24,10 +24,10 @@
 </template>
 
 <script>
-import toolbar from "./logs_toolbar";
+import LogsToolbar from "./LogsToolbar";
 
 export default {
-  components: { toolbar },
+  components: { LogsToolbar },
   data() {
     return {
       filter: {},

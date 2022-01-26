@@ -4,7 +4,7 @@
       <v-card>
         <v-toolbar flat color="primary" dark>
           <v-toolbar-title class="flex-grow-1">BBBread</v-toolbar-title>
-          <login class="flex-grow-0" @logout="logout" @login="login" />
+          <LoginMenu class="flex-grow-0" @logout="logout" @login="login" />
         </v-toolbar>
         <v-tabs background-color="#f2f2f2">
           <v-tab>
@@ -21,24 +21,24 @@
           </v-tab>
           <v-tab-item>
             <v-card flat>
-              <status/>
+              <StatusTab/>
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <logs/>
+              <LogsTab/>
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <ps/>
+              <PsTab/>
             </v-card>
           </v-tab-item>
         </v-tabs>
       </v-card>
     </v-main>
-    <ft />
-    <confirm ref="confirm" />
+    <FooterBar/>
+    <ConfirmDialog ref="confirm" />
     <v-snackbar
       v-model="$store.state.snackbar"
       timeout="4000"
@@ -58,23 +58,23 @@
 
 <script>
 import { PublicClientApplication } from "@azure/msal-browser";
-import status from "./components/status";
-import logs from "./components/logs";
-import ft from "./components/footer";
-import confirm from "./components/confirm";
-import login from "./components/login";
-import ps from "./components/ps";
+import StatusTab from "./components/StatusTab";
+import LogsTab from "./components/LogsTab";
+import FooterBar from "./components/FooterBar";
+import ConfirmDialog from "./components/ConfirmDialog";
+import LoginMenu from "./components/LoginMenu";
+import PsTab from "./components/PsTab";
 
 export default {
   name: "App",
 
   components: {
-    status,
-    logs,
-    ft,
-    confirm,
-    login,
-    ps,
+    StatusTab,
+    LogsTab,
+    FooterBar,
+    ConfirmDialog,
+    LoginMenu,
+    PsTab,
   },
 
   async created() {

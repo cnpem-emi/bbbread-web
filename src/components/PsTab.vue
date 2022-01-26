@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <toolbar
+    <ToolBar
       @search="update_search"
       @refresh="get_all"
       v-bind:search="search" />
@@ -72,7 +72,7 @@
       </template>
     </v-data-table>
 
-    <services
+    <ServicesDialog
       v-bind:items="selected"
       :dialog="service_dialog"
       @closeDialog="service_dialog = false"
@@ -80,8 +80,8 @@
 </template>
 
 <script>
-import toolbar from "./toolbar";
-import services from "./services";
+import ToolBar from "./ToolBar";
+import ServicesDialog from "./ServicesDialog";
 
 function arrayToDict(array) {
   let dict = {};
@@ -92,7 +92,7 @@ function arrayToDict(array) {
 }
 
 export default {
-  components: { toolbar, services },
+  components: { ToolBar, ServicesDialog },
   props: ["refresh"],
   data() {
     return {
