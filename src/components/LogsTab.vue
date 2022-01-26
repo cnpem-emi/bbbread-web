@@ -14,10 +14,13 @@
       :sort-by.sync="sortBy"
       :sort-desc="true"
     >
-      <template v-slot:item.status="{ item }">
-        <v-chip :color="getColor(item.status)" dark>
-          {{ item.status }}
-        </v-chip>
+      <template v-slot:item.actions="{ item }">
+        <v-icon
+          small
+          @click="delete_log(item)"
+        >
+          mdi-delete
+        </v-icon>
       </template>
     </v-data-table>
   </v-container>
@@ -38,6 +41,7 @@ export default {
         { text: "IP", value: "ip" },
         { text: "Hostname", value: "hostname" },
         { text: "Message", value: "message" },
+        { text: 'Actions', value: 'actions', sortable: false },
       ],
       items: [],
       symbols: {},
@@ -97,6 +101,7 @@ export default {
             ip: bbbs[bbb].split(":")[1],
             hostname: bbbs[bbb].split(":")[2],
             key: bbbs[bbb],
+            timestamp: raw_items[bbb][log],
             date: new Date(parseInt(raw_items[bbb][log++]) * 1000)
               .toISOString()
               .replace(/Z|T/g, " "),
@@ -121,6 +126,25 @@ export default {
     update_search(search) {
       this.search.text = search;
     },
+    async delete_log(item) {
+      let confirmed = await this.$root.$confirm(
+          "Confirmation",
+          "Are you sure you want to delete this log?",
+          true
+          )
+      if(confirmed) {
+        const token = await this.$store.state.msalInstance.acquireTokenSilent(
+            {
+              scopes: ["User.Read"],
+              account: this.$store.state.account,
+            }
+          );
+
+        console.log(token);
+
+        this.send_command(`HDEL/${item.key}/${item.timestamp}`, token);
+      }
+    }
   },
   created() {
     this.get_all();

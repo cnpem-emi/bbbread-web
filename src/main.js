@@ -31,18 +31,32 @@ if (
 
 Vue.mixin({
   methods: {
-    async send_command(command, token = "") {
-      let options = {
-        method: "GET",
+    async send_command(endpoint, body, method="GET") {
+      let config = {
+        method: method,
+        headers: { Authorization: `Bearer ${await this.get_token()}`, "Content-Type": "application/json" },
       };
 
-      if (token)
-        options.headers = { Authorization: `Bearer ${token.accessToken}` }
-      const response = await fetch(`https://${this.$store.state.url}/archiver-generic-backend/bypass?${this.$store.state.url}:7379/${command}`, options);
+      if (method !== "GET") {
+        config["body"] = JSON.stringify(body);
+      }
 
-      return response.json();
+      const response = await fetch(
+        `https://${this.$store.state.url}/simar/api/${endpoint}`,
+        config,
+      );
+
+      return response;
     },
-  }
+    async get_token() {
+      const token = await this.$store.state.msalInstance.acquireTokenSilent({
+        scopes: ["User.Read"],
+        account: this.$store.state.account,
+      });
+
+      return token.accessToken;
+    }
+  },
 });
 
 new Vue({
