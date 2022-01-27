@@ -26,8 +26,10 @@
       </v-list>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="red darken-1" text @click="act_service(21)"> Stop </v-btn>
-        <v-btn color="blue darken-1" text @click="act_service(20)">
+        <v-btn color="red darken-1" text @click="act_service('stop')">
+          Stop
+        </v-btn>
+        <v-btn color="blue darken-1" text @click="act_service('restart')">
           Restart
         </v-btn>
       </v-card-actions>
@@ -51,26 +53,24 @@ export default {
   },
   methods: {
     async act_service(action) {
-      const token = await this.$store.state.msalInstance.acquireTokenSilent({
-        scopes: ["User.Read"],
-        account: this.$store.state.account,
-      });
+      let service_actions = { restart: [], stop: [] };
+      for (let beagle of this.items) {
+        service_actions[action].push({
+          key: beagle.key,
+          services: this.selected,
+        });
+      }
 
-      const promises = [];
+      const response = await this.send_command(
+        "services",
+        service_actions,
+        "POST"
+      );
 
-      for (let beagle of this.items)
-        for (let service of this.selected)
-          promises.push(
-            this.send_command(
-              `RPUSH/${beagle.key}:Command/${action};${service}`,
-              token
-            )
-          );
-
-      if (Promise.all(promises)) {
+      if (response.status === 200) {
         this.$store.commit(
           "show_snackbar",
-          `Successfully applied changes to ${this.items[0]["hostname"]} ${
+          `Successfully applied changes to ${this.items[0].name} ${
             this.items.length > 1
               ? `and other ${this.items.length - 1} nodes`
               : ""

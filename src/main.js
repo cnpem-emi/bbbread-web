@@ -23,7 +23,7 @@ if (
   host.includes("0.0.0.0") ||
   host.includes("localhost") ||
   host.includes("10.0.38.50") ||
-  host.includes("10.0.6.50")
+  host.includes("10.0.6.70")
 ) {
   host = "10.0.38.46";
   console.log("__`o##o>__ DEBUG SERVER. Setting host to 10.0.38.46");
@@ -31,7 +31,7 @@ if (
 
 Vue.mixin({
   methods: {
-    async send_command(endpoint, body, method="GET") {
+    async send_command(endpoint, body, method = "GET") {
       let config = {
         method: method,
         headers: { Authorization: `Bearer ${await this.get_token()}`, "Content-Type": "application/json" },

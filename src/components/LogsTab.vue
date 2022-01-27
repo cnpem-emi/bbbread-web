@@ -15,12 +15,7 @@
       :sort-desc="true"
     >
       <template v-slot:item.actions="{ item }">
-        <v-icon
-          small
-          @click="delete_log(item)"
-        >
-          mdi-delete
-        </v-icon>
+        <v-icon small @click="delete_log(item)"> mdi-delete </v-icon>
       </template>
     </v-data-table>
   </v-container>
@@ -38,10 +33,10 @@ export default {
       itemsPerPage: 8,
       headers: [
         { text: "Date", align: "start", value: "date" },
-        { text: "IP", value: "ip" },
-        { text: "Hostname", value: "hostname" },
+        { text: "IP", value: "ip_address" },
+        { text: "Hostname", value: "name" },
         { text: "Message", value: "message" },
-        { text: 'Actions', value: 'actions', sortable: false },
+        { text: "Actions", value: "actions", sortable: false },
       ],
       items: [],
       symbols: {},
@@ -55,7 +50,9 @@ export default {
     filtered_keys() {
       return this.items.filter(
         (i) =>
-          ([i.ip, i.hostname, i.message].some((e) => e.includes(this.search)) &&
+          ([i.ip_address, i.name, i.message].some((e) =>
+            e.includes(this.search)
+          ) &&
             (!this.date_range.length ||
               (this.date_range[0] < i.date && this.date_range[1] > i.date))) ||
           this.date_range[0] === i.date.substring(0, i.date.indexOf(" "))
@@ -67,50 +64,11 @@ export default {
       this.date_range = raw_date;
     },
     async get_all() {
-      const items = [];
-      const fetches = [];
       this.loading_bbbs = true;
 
-      let bbbs = await this.send_command(`KEYS/BBB:*:Logs`);
-      bbbs = bbbs.KEYS;
+      let response = await this.send_command("logs");
 
-      for (let i = 0; i < bbbs.length; i += 200) {
-        let command = escape(
-          `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${
-            i + 200 > bbbs.length ? bbbs.length - i : 200
-          }/`
-        ); //Lua is behaving weirdly with the + operator.
-        for (let key of bbbs.slice(
-          i,
-          i + 200 > bbbs.length ? bbbs.length : i + 200
-        )) {
-          command += `${key}/`;
-        }
-
-        fetches.push(this.send_command(command));
-      }
-
-      const reply = await Promise.all(fetches);
-
-      let raw_items = [];
-      for (let arr of reply) raw_items = raw_items.concat(arr.EVALSHA);
-
-      for (let bbb = 0; bbb < bbbs.length; bbb++) {
-        for (let log = 0; log < raw_items[bbb].length; log++) {
-          items.push({
-            ip: bbbs[bbb].split(":")[1],
-            hostname: bbbs[bbb].split(":")[2],
-            key: bbbs[bbb],
-            timestamp: raw_items[bbb][log],
-            date: new Date(parseInt(raw_items[bbb][log++]) * 1000)
-              .toISOString()
-              .replace(/Z|T/g, " "),
-            message: raw_items[bbb][log],
-          });
-        }
-      }
-
-      this.items = items;
+      this.items = await response.json();
       this.loading_bbbs = false;
     },
     get_color(item) {
@@ -128,23 +86,20 @@ export default {
     },
     async delete_log(item) {
       let confirmed = await this.$root.$confirm(
-          "Confirmation",
-          "Are you sure you want to delete this log?",
-          true
-          )
-      if(confirmed) {
-        const token = await this.$store.state.msalInstance.acquireTokenSilent(
-            {
-              scopes: ["User.Read"],
-              account: this.$store.state.account,
-            }
-          );
+        "Confirmation",
+        "Are you sure you want to delete this log?",
+        true
+      );
 
-        console.log(token);
-
-        this.send_command(`HDEL/${item.key}/${item.timestamp}`, token);
+      if (confirmed) {
+        this.send_command(
+          "del_logs",
+          [{ key: item.key, timestamps: [item.timestamp] }],
+          "POST"
+        );
+        this.get_all();
       }
-    }
+    },
   },
   created() {
     this.get_all();

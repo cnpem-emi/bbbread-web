@@ -118,7 +118,7 @@ export default {
           "4UHV",
           "SPIxCONV",
           "MBTemp",
-          "No Device",
+          "Unknown",
         ],
         ip_types: ["Static", "DHCP", "Undetermined"],
       },
@@ -134,7 +134,7 @@ export default {
           this.search.ip_types.includes(i.ip_type) &&
           (this.search.room === i.sector || this.search.room === "All") &&
           (this.search.equipments.includes(i.equipment) ||
-            (this.search.equipments.includes("No Device") && !i.equipment))
+            (this.search.equipments.includes("Unknown") && !i.equipment))
         );
       });
     },
@@ -150,41 +150,36 @@ export default {
       const response = await this.send_command(`beaglebones`);
 
       this.items = await response.json();
+      console.log(this.items);
       this.loading_bbbs = false;
     },
     async perform_action(item, action) {
+      console.log(this.selected);
       if (item) this.selected = [item];
       else item = this.selected[0];
 
       if (action !== "Services") {
         let confirmation = await this.$root.$confirm(
           "Confirmation",
-          `Are you sure you want to ${action.toLowerCase()} ${item.ip_address} (${
-            item.name
-          }) ${
+          `Are you sure you want to ${action.toLowerCase()} ${
+            item.ip_address
+          } (${item.name}) ${
             this.selected.length > 1
               ? `and other ${this.selected.length - 1} nodes`
               : ""
           }?`
         );
         if (confirmation) {
-          let reply;
-
-          switch (action) {
-            case "Delete":
-                reply = await this.send_command("del_beaglebones", {targets: this.selected.map(b => b.key)}, "POST")
-              break;
-            case "Reboot":
-                reply = await this.send_command("reboot", {targets: this.selected.map(b => b.key)}, "POST")
-              break;
-          }
+          let reply = await this.send_command(
+            "beaglebones",
+            { [action.toLowerCase()]: this.selected.map((b) => b.key) },
+            "POST"
+          );
 
           if (reply !== undefined) {
             this.$store.commit(
               "show_snackbar",
-              `Successfully applied changes to ${
-                this.selected[0]["name"]
-              } ${
+              `Successfully applied changes to ${this.selected[0]["name"]} ${
                 this.selected.length > 1
                   ? `and other ${this.selected.length - 1} nodes`
                   : ""
@@ -210,7 +205,7 @@ export default {
     },
     update_search(search) {
       this.search.text = search;
-    }
+    },
   },
   created() {
     this.get_all();
