@@ -150,11 +150,9 @@ export default {
       const response = await this.send_command(`beaglebones`);
 
       this.items = await response.json();
-      console.log(this.items);
       this.loading_bbbs = false;
     },
     async perform_action(item, action) {
-      console.log(this.selected);
       if (item) this.selected = [item];
       else item = this.selected[0];
 
