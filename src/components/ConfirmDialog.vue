@@ -42,7 +42,8 @@ export default {
     };
   },
   methods: {
-    open(title, message) {
+    open(title, message, checkbox=false) {
+      this.user_sure=checkbox;
       this.dialog = true;
       this.title = title;
       this.message = message;

@@ -15,13 +15,13 @@
       @toggle-select-all="toggle_select"
       v-model="selected"
     >
-      <template v-slot:item.status="{ item }">
-        <v-chip :color="get_color(item.status)" dark>
-          {{ item.status }}
+      <template v-slot:item.state_string="{ item }">
+        <v-chip :color="get_color(item.state_string)" dark>
+          {{ item.state_string }}
         </v-chip>
       </template>
-      <template v-slot:item.ps_names="{ item }">
-        <v-chip small v-for="ps in item.ps_names" :key="ps">
+      <template v-slot:item.ps="{ item }">
+        <v-chip small v-for="ps in item.ps" :key="ps">
           {{ ps }}
         </v-chip>
       </template>
@@ -48,7 +48,13 @@
             :hide-default-footer="true"
             :headers="innerHeaders"
             :items="[item]"
-          />
+          >
+            <template v-slot:item.udc="{ item }">
+              <v-chip small v-for="udc in item.udc" :key="udc">
+                {{ udc }}
+              </v-chip>
+            </template>
+          </v-data-table>
 
           <div style="text-align: right; position: relative">
             <span
@@ -83,14 +89,6 @@
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
 
-function arrayToDict(array) {
-  let dict = {};
-  for (let i = 0; i < array.length; i++) {
-    dict[array[i]] = array[++i];
-  }
-  return dict;
-}
-
 export default {
   components: { ToolBar, ServicesDialog },
   props: ["refresh"],
@@ -110,17 +108,16 @@ export default {
         { text: "UDC", value: "udc" },
       ],
       headers: [
-        { text: "IP", align: "start", value: "ip" },
-        { text: "Hostname", value: "hostname" },
-        { text: "Status", value: "status" },
-        { text: "Power Supplies", value: "ps_names" },
+        { text: "IP", align: "start", value: "ip_address" },
+        { text: "Hostname", value: "name" },
+        { text: "Status", value: "state_string" },
+        { text: "Power Supplies", value: "ps", width: "45%" },
         { text: "Role", value: "role" },
         { value: "data-table-expand" },
       ],
       items: [],
       symbols: {},
       loading_bbbs: true,
-      ps: { name: [] },
       search: {
         text: "",
         statuses: ["Disconnected", "Connected", "Moved"],
@@ -133,11 +130,11 @@ export default {
     filtered_beagles() {
       return this.items.filter((i) => {
         return (
-          i.status !== undefined &&
-          (i.hostname.indexOf(this.search.text) !== -1 ||
-            i.ip.indexOf(this.search.text) !== -1 ||
-            i.ps_names.join("").includes(this.search.text)) &&
-          this.search.statuses.some((j) => i.status.includes(j)) &&
+          i.state_string !== undefined &&
+          (i.name.indexOf(this.search.text) !== -1 ||
+            i.ip_address.indexOf(this.search.text) !== -1 ||
+            i.ps.join("").includes(this.search.text)) &&
+          this.search.statuses.some((j) => i.state_string.includes(j)) &&
           this.search.ip_types.includes(i.ip_type) &&
           (this.search.room === i.sector || this.search.room === "All")
         );
@@ -145,118 +142,13 @@ export default {
     },
   },
   methods: {
-    async update_pwr_names() {
-      let response = await fetch(
-        "https://raw.githubusercontent.com/lnls-sirius/control-system-constants/master/beaglebone/ip-list.txt"
-      );
-      response = await response.text();
-
-      for (let bbb of response
-        .split("\n")
-        .filter((i) => i.charAt(0) !== "#" && i)) {
-        const ps_bbb = bbb.replace(/  +/g, " ").split(" ");
-        this.items.push({
-          ip: ps_bbb[1],
-          hostname: ps_bbb[0],
-          key: `BBB:${ps_bbb[1]}:${ps_bbb[0].replace(":", "--")}`,
-        });
-      }
-
-      response = await fetch(
-        "https://raw.githubusercontent.com/lnls-sirius/control-system-constants/master/beaglebone/beaglebone-udc.txt"
-      );
-      response = await response.text();
-
-      for (let udc of response
-        .split("\n")
-        .filter((i) => i.charAt(0) !== "#" && i)) {
-        const name_udc = udc.replace(/  +/g, " ").split(" ");
-        this.items[
-          this.items.findIndex((item) => item["hostname"] === name_udc[0])
-        ]["udc"] = name_udc.slice(1);
-      }
-
-      response = await fetch(
-        "https://raw.githubusercontent.com/lnls-sirius/control-system-constants/master/beaglebone/udc-bsmp.txt"
-      );
-      response = await response.text();
-
-      for (let udc of response
-        .split("\n")
-        .filter((i) => i.charAt(0) !== "#" && i)) {
-        const udc_name = udc.replace(/  +/g, " ").split(" ");
-        this.items[
-          this.items.findIndex((item) =>
-            (item.udc || "None").includes(udc_name[0])
-          )
-        ]["ps_names"] = udc_name.filter((_, i) => i > 0 && i % 2 == 1);
-      }
-    },
     toggle_select(selected) {
       if (!selected.value) this.selected = [];
       else this.selected = selected.items;
     },
     async get_all() {
-      await this.update_pwr_names();
-
-      const fetches = [];
-      const offset = new Date().getTimezoneOffset() * 60 * 1000;
-
-      for (let i = 0; i < this.items.length; i += 200) {
-        let command = escape(
-          `EVALSHA/82281378dbb9b4ab512a34823ed9722c0743394e/${
-            i + 200 > this.items.length ? this.items.length - i : 200
-          }/`
-        ); //Lua is behaving weirdly with the + operator.
-
-        for (let item of this.items.slice(
-          i,
-          i + 200 > this.items.length ? this.items.length : i + 200
-        )) {
-          command += `${item["key"]}/`;
-        }
-
-        fetches.push(this.send_command(command));
-      }
-
-      const reply = await Promise.all(fetches);
-      let raw_items = [];
-      for (let arr of reply) raw_items = raw_items.concat(arr.EVALSHA);
-
-      for (let i in raw_items) {
-        if (raw_items[i].length > 0) {
-          const dict = arrayToDict(raw_items[i]);
-
-          let ip_type = "Static";
-          if (dict["ip_type"] == "0.0.0.0") ip_type = "Undetermined";
-          else if (dict["ip_type"] == "dhcp") ip_type = "DHCP";
-
-          const role = dict["matching_bbb"]
-            ? dict["matching_bbb"].charAt(0).toUpperCase() +
-              dict["matching_bbb"].slice(1)
-            : "Primary";
-
-          const sector = dict["sector"].replace("Sala", "IA-");
-
-          Object.assign(this.items[i], {
-            role: role,
-            status:
-              dict["state_string"].substring(0, 3) === "BBB"
-                ? `Moved - ${dict["state_string"].substring(4)}`
-                : dict["state_string"],
-            last_seen: !isNaN(dict["ping_time"])
-              ? new Date(parseInt(dict["ping_time"] * 1000 - offset))
-                  .toISOString()
-                  .replace(/Z|T/g, " ")
-              : "-",
-            nameservers: dict["nameservers"],
-            ip_type: ip_type,
-            sector: sector === "Outros" ? "Others" : sector,
-          });
-        }
-      }
-
-      this.items = this.items.filter((item) => item["status"] !== undefined);
+      const response = await this.send_command("beaglebones?ps");
+      this.items = await response.json();
       this.loading_bbbs = false;
     },
     async performAction(item, action) {
@@ -266,52 +158,24 @@ export default {
       if (action !== "Services") {
         let confirmation = await this.$root.$confirm(
           "Confirmation",
-          `Are you sure you want to ${action.toLowerCase()} ${item.ip} (${
-            item.hostname
-          }) ${
+          `Are you sure you want to ${action.toLowerCase()} ${
+            item.ip_address
+          } (${item.name}) ${
             this.selected.length > 1
               ? `and other ${this.selected.length - 1} nodes`
               : ""
           }?`
         );
         if (confirmation) {
-          const token = await this.$store.state.msalInstance.acquireTokenSilent(
-            {
-              scopes: ["User.Read"],
-              account: this.$store.state.account,
-            }
+          const reply = await this.send_command(
+            "beaglebones",
+            { [action.toLowerCase()]: this.selected.map((b) => b.key) },
+            "POST"
           );
-
-          let commands = [];
-
-          switch (action) {
-            case "Delete":
-              for (let beagle of this.selected) {
-                commands.push(this.send_command(`DEL/${beagle.key}`, token));
-                commands.push(
-                  this.send_command(`DEL/${beagle.key}:Command`, token)
-                );
-                commands.push(
-                  this.send_command(`DEL/${beagle.key}:Logs`, token)
-                );
-              }
-              break;
-            case "Reboot":
-              for (let beagle of this.selected) {
-                commands.push(
-                  this.send_command(`RPUSH/${beagle.key}:Command/1`, token)
-                );
-              }
-              break;
-          }
-
-          const reply = await Promise.all(commands);
-          if (reply !== undefined) {
+          if (reply.status === 200) {
             this.$store.commit(
               "show_snackbar",
-              `Successfully applied changes to ${
-                this.selected[0]["hostname"]
-              } ${
+              `Successfully applied changes to ${this.selected[0].name} ${
                 this.selected.length > 1
                   ? `and other ${this.selected.length - 1} nodes`
                   : ""
