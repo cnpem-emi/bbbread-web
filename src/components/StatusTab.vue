@@ -77,6 +77,7 @@
 <script>
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
+import { equipments, ip_types, possible_statuses } from "../assets/constants";
 
 export default {
   components: { ToolBar, ServicesDialog },
@@ -107,20 +108,10 @@ export default {
       loading_bbbs: true,
       search: {
         text: "",
-        statuses: ["Disconnected", "Connected", "Moved"],
+        statuses: possible_statuses,
         room: "All",
-        equipments: [
-          "Power Supply",
-          "SIMAR",
-          "CountingPRU",
-          "Thermo Probe",
-          "MKS",
-          "4UHV",
-          "SPIxCONV",
-          "MBTemp",
-          "Unknown",
-        ],
-        ip_types: ["Static", "DHCP", "Undetermined"],
+        equipments: equipments,
+        ip_types: ip_types,
       },
     };
   },
@@ -207,7 +198,7 @@ export default {
   },
   created() {
     this.get_all();
-    this.interval = setInterval(this.get_all, 10000);
+    this.interval = setInterval(this.get_all, 25000);
   },
 };
 </script>

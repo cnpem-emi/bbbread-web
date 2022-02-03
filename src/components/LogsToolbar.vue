@@ -31,7 +31,10 @@
                 single-line
                 hide-details
                 clearable
-                @click:clear="date_range = []; $emit('date', date_range);"
+                @click:clear="
+                  date_range = [];
+                  $emit('date', date_range);
+                "
               ></v-text-field>
             </template>
             <v-date-picker v-model="date_range" scrollable range>
@@ -61,12 +64,13 @@
 </template>
 
 <script>
+import { possible_statuses } from "../assets/constants";
 export default {
   props: ["search"],
   data() {
     return {
       filter: {},
-      possible_statuses: ["Disconnected", "Connected", "Moved"],
+      possible_statuses: possible_statuses,
       dropdown: false,
       date_range: [],
       date_dialog: false,
@@ -75,7 +79,7 @@ export default {
   computed: {
     date_text() {
       return this.date_range.join(" ~ ");
-    }
-  }
+    },
+  },
 };
 </script>
