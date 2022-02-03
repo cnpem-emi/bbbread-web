@@ -6,7 +6,7 @@ import store from './store';
 Vue.config.productionTip = false
 Vue.prototype.$msalInstance = {};
 
-let host = "10.0.38.42";
+let host = "ais-eng-srv-la.cnpem.br";
 if (window.location.host === "vpn.cnpem.br") {
   // If using WEB VPN
   // Capture IPv4 address
@@ -25,7 +25,7 @@ if (
   host.includes("10.0.38.50") ||
   host.includes("10.0.6.70")
 ) {
-  host = "10.0.38.46";
+  host = "ais-eng-srv-la.cnpem.br";
   console.log("__`o##o>__ DEBUG SERVER. Setting host to 10.0.38.46");
 }
 
@@ -34,11 +34,12 @@ Vue.mixin({
     async send_command(endpoint, body, method = "GET") {
       let config = {
         method: method,
-        headers: { Authorization: `Bearer ${await this.get_token()}`, "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
       };
 
       if (method !== "GET") {
         config["body"] = JSON.stringify(body);
+        config["headers"]["Authorization"] = `Bearer ${await this.get_token()}`;
       }
 
       const response = await fetch(

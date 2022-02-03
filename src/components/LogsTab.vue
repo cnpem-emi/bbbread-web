@@ -103,7 +103,7 @@ export default {
   },
   created() {
     this.get_all();
-    this.interval = setInterval(this.get_all, 10000);
+    this.interval = setInterval(this.get_all, 25000);
   },
 };
 </script>

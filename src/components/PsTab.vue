@@ -88,6 +88,7 @@
 <script>
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
+import { actions, possible_statuses } from "../assets/constants";
 
 export default {
   components: { ToolBar, ServicesDialog },
@@ -100,7 +101,7 @@ export default {
       page: 1,
       itemsPerPage: 8,
       selected: [],
-      actions: ["Reboot", "Delete", "Services"],
+      actions: actions,
       innerHeaders: [
         { text: "Nameservers", value: "nameservers" },
         { text: "IP Type", value: "ip_type" },
@@ -120,9 +121,9 @@ export default {
       loading_bbbs: true,
       search: {
         text: "",
-        statuses: ["Disconnected", "Connected", "Moved"],
+        statuses: possible_statuses,
         room: "All",
-        ip_types: ["Static", "DHCP", "Undetermined"],
+        ip_types: ip_types,
       },
     };
   },
@@ -204,7 +205,7 @@ export default {
   },
   created() {
     this.get_all();
-    this.interval = setInterval(this.get_all, 10000);
+    this.interval = setInterval(this.get_all, 35000);
   },
 };
 </script>

@@ -77,25 +77,16 @@
 </template>
 
 <script>
+import { ip_types, possible_statuses, rooms } from "../assets/constants.js";
+
 export default {
   props: ["search"],
   data() {
     return {
       filter: {},
-      possible_statuses: ["Disconnected", "Connected", "Moved"],
-      equipments: [
-        "Power Supply",
-        "SIMAR",
-        "CountingPRU",
-        "Thermo Probe",
-        "MKS",
-        "4UHV",
-        "SPIxCONV",
-        "MBTemp",
-        "No Device",
-      ],
-      ip_types: ["Static", "DHCP", "Undetermined"],
-      rooms: ["All", "TL", "RF", "Power Supplies", "Connectivity", "Others"],
+      possible_statuses: possible_statuses,
+      ip_types: ip_types,
+      rooms: rooms,
       dropdown: false,
     };
   },
