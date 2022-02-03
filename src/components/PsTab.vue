@@ -88,7 +88,7 @@
 <script>
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
-import { actions, possible_statuses } from "../assets/constants";
+import { actions, possible_statuses, ip_types } from "../assets/constants";
 
 export default {
   components: { ToolBar, ServicesDialog },
