@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { ip_types, possible_statuses, rooms } from "../assets/constants.js";
+import { equipments, ip_types, possible_statuses, rooms } from "../assets/constants.js";
 
 export default {
   props: ["search"],
@@ -88,6 +88,7 @@ export default {
       ip_types: ip_types,
       rooms: rooms,
       dropdown: false,
+      equipments: equipments
     };
   },
   mounted() {

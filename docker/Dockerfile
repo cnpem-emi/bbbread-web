@@ -6,7 +6,7 @@ WORKDIR /home/node/app
 
 COPY package*.json babel.config.js vue.config.js .env ./
 
-RUN npm install --loglevel verbose
+RUN npm install
 
 COPY public public
 COPY src src

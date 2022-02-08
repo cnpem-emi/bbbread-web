@@ -12,10 +12,24 @@
       :search="search"
       :loading="loading_bbbs"
       :sort-by.sync="sortBy"
+      :show-select="$store.state.account !== undefined"
       :sort-desc="true"
+      item-key="id"
+      v-model="selected"
     >
       <template v-slot:item.actions="{ item }">
         <v-icon small @click="delete_log(item)"> mdi-delete </v-icon>
+      </template>
+      <template v-slot:footer v-if="selected.length > 0">
+        <div style="position: absolute" class="pa-0 pl-2">
+          <v-btn
+            color="red"
+            dark
+            @click="delete_logs()"
+            style="margin: 10px 10px 10px 0; flex-shrink: 1"
+            >Delete</v-btn
+          >
+        </div>
       </template>
     </v-data-table>
   </v-container>
@@ -44,9 +58,13 @@ export default {
       sortBy: "date",
       search: "",
       date_range: [],
+      selected: [],
     };
   },
   computed: {
+    composite_key(item) {
+      return item.timestamp + " " + item.key;
+    },
     filtered_keys() {
       return this.items.filter(
         (i) =>
@@ -69,6 +87,9 @@ export default {
       let response = await this.send_command("logs");
 
       this.items = await response.json();
+      for (let i in this.items) {
+        this.items[i].id = this.items[i].key.concat(this.items[i].timestamp, i);
+      }
       this.loading_bbbs = false;
     },
     get_color(item) {
@@ -82,7 +103,7 @@ export default {
       }
     },
     update_search(search) {
-      this.search.text = search;
+      this.search = search;
     },
     async delete_log(item) {
       let confirmed = await this.$root.$confirm(
@@ -100,7 +121,30 @@ export default {
         this.get_all();
       }
     },
+    async delete_logs() {
+      let confirmed = await this.$root.$confirm(
+        "Confirmation",
+        `Are you sure you want to delete ${this.selected.length} logs?`,
+        true
+      );
+
+      if (confirmed) {
+        let request_body = [];
+        let index = 0;
+        for (let log of this.selected) {
+          index = request_body.findIndex((l) => l.key === log.key);
+          if (index >= 0)
+            request_body[index].timestamps.push(log.timestamp);
+          else
+            request_body.push({ key: log.key, timestamps: [log.timestamp] });
+        }
+        await this.send_command("del_logs", request_body, "POST");
+        this.selected = [];
+        this.get_all();
+      }
+    },
   },
+
   created() {
     this.get_all();
     this.interval = setInterval(this.get_all, 25000);
