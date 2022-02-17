@@ -23,7 +23,20 @@
             </v-checkbox>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item :key="services.length">
+          <v-list-item-content>
+            <v-checkbox v-model="selected" value="custom_service">
+              <template v-slot:label>
+                <div>
+                  <h4>Custom Service</h4>
+                  <v-text-field dense v-model="custom_service"></v-text-field>
+                </div>
+              </template>
+            </v-checkbox>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
+
       <v-card-actions>
         <v-spacer />
         <v-btn color="red darken-1" text @click="act_service('stop')">
@@ -44,20 +57,26 @@ export default {
     return {
       services: [
         { text: "BBBread", name: "bbbread" },
-        { text: "SIMAR", name: "simar_sensors" },
+        { text: "SIMAR (BME)", name: "simar@bme" },
         { text: "eth-bridge", name: "eth-bridge-pru-serial485" },
         { text: "bbb-function", name: "bbb-function" },
       ],
       selected: [],
+      custom_service: "",
     };
   },
   methods: {
     async act_service(action) {
       let service_actions = { restart: [], stop: [] };
+      let services = this.selected.filter((s) => s != "custom_service");
+
+      if (this.selected.includes("custom_service")) {
+        services.push(this.custom_service);
+      }
       for (let beagle of this.items) {
         service_actions[action].push({
           key: beagle.key,
-          services: this.selected,
+          services: services,
         });
       }
 

@@ -9,7 +9,7 @@
     >
       <template v-slot:activator="{ on }">
         <v-btn icon x-large v-on="on">
-          <v-avatar color="indigo" size="48">
+          <v-avatar color="#003366" size="48">
             <span class="white--text text-h6">{{
               $store.state.account.initials
             }}</span>

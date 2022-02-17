@@ -2,7 +2,7 @@
   <v-app>
     <v-main fluid>
       <v-card>
-        <v-toolbar flat color="primary" dark>
+        <v-toolbar flat color="#0059b3" dark>
           <v-toolbar-title class="flex-grow-1">BBBread</v-toolbar-title>
           <LoginMenu class="flex-grow-0" @logout="logout" @login="login" />
         </v-toolbar>
@@ -21,23 +21,23 @@
           </v-tab>
           <v-tab-item>
             <v-card flat>
-              <StatusTab/>
+              <StatusTab />
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <LogsTab/>
+              <LogsTab />
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <PsTab/>
+              <PsTab />
             </v-card>
           </v-tab-item>
         </v-tabs>
       </v-card>
     </v-main>
-    <FooterBar/>
+    <FooterBar />
     <ConfirmDialog ref="confirm" />
     <v-snackbar
       v-model="$store.state.snackbar"
