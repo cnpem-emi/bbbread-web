@@ -50,10 +50,19 @@ Vue.mixin({
       return response;
     },
     async get_token() {
-      const token = await this.$store.state.msalInstance.acquireTokenSilent({
-        scopes: ["User.Read"],
-        account: this.$store.state.account,
-      });
+      let token;
+      try {
+        token = await this.$store.state.msalInstance.acquireTokenSilent({
+          scopes: ["User.Read"],
+          account: this.$store.state.account,
+        });
+      } catch (err) {
+        console.error(err);
+        token = await this.$store.state.msalInstance.acquireTokenPopup({
+          scopes: ["User.Read"],
+          account: this.$store.state.account,
+        });
+      }
 
       return token.accessToken;
     }

@@ -165,7 +165,7 @@ export default {
             "POST"
           );
 
-          if (reply !== undefined) {
+          if (reply.status === 200) {
             this.$store.commit(
               "show_snackbar",
               `Successfully applied changes to ${this.selected[0]["name"]} ${
@@ -173,6 +173,11 @@ export default {
                   ? `and other ${this.selected.length - 1} nodes`
                   : ""
               }!`
+            );
+          } else {
+            this.$store.commit(
+              "show_snackbar",
+              "Failed to send command! Please try reloading the page or relogging"
             );
           }
         }
