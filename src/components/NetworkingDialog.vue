@@ -9,94 +9,97 @@
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-col>
-          <v-row>
-            <v-col cols="12" sm="9">
-              <v-text-field
-                dense
-                label="IP Address"
-                outlined
-                :append-icon="new_ip !== item.ip_address ? `${mdiPencil}` : ''"
-                v-model="new_ip"
-                :value="item.ip_address"
-                hide-details
-                :readonly="dhcp"
-                :rules="[rules.ip]"
-              ></v-text-field>
-            </v-col>
-            <v-col fill-height class="d-flex align-center justify-center">
-              <v-switch
-                style="margin-top: 0"
-                inset
-                hide-details
-                v-model="dhcp"
-                flat
-                label="DHCP"
-                :append-icon="
-                  dhcp !== (item.ip_type === 'DHCP') ? `${mdiPencil}` : ''
-                "
-              ></v-switch>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                dense
-                label="Hostname"
-                outlined
-                v-model="new_name"
-                :value="item.name"
-                :append-icon="new_name !== item.name ? `${mdiPencil}` : ''"
-                hide-details
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-text-field
-                dense
-                label="Nameserver 1"
-                outlined
-                v-model="new_nameserver1"
-                :value="get_nameserver(0)"
-                :append-icon="
-                  new_nameserver1 !== get_nameserver(0) ? `${mdiPencil}` : ''
-                "
-                :rules="[rules.ip]"
-                hide-details
-              ></v-text-field>
-            </v-col>
+        <v-form v-model="valid">
+          <v-col>
+            <v-row>
+              <v-col cols="12" sm="9">
+                <v-text-field
+                  dense
+                  label="IP Address"
+                  outlined
+                  :append-icon="
+                    new_ip !== item.ip_address ? `${mdiPencil}` : ''
+                  "
+                  v-model="new_ip"
+                  :value="item.ip_address"
+                  hide-details
+                  :readonly="dhcp"
+                  :rules="[rules.ip]"
+                ></v-text-field>
+              </v-col>
+              <v-col fill-height class="d-flex align-center justify-center">
+                <v-switch
+                  style="margin-top: 0"
+                  inset
+                  hide-details
+                  v-model="dhcp"
+                  flat
+                  label="DHCP"
+                  :append-icon="
+                    dhcp !== (item.ip_type === 'DHCP') ? `${mdiPencil}` : ''
+                  "
+                ></v-switch>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  dense
+                  label="Hostname"
+                  outlined
+                  v-model="new_name"
+                  :value="item.name"
+                  :append-icon="new_name !== item.name ? `${mdiPencil}` : ''"
+                  hide-details
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  dense
+                  label="Nameserver 1"
+                  outlined
+                  v-model="new_nameserver1"
+                  :value="get_nameserver(0)"
+                  :append-icon="
+                    new_nameserver1 !== get_nameserver(0) ? `${mdiPencil}` : ''
+                  "
+                  :rules="[rules.ip]"
+                  hide-details
+                ></v-text-field>
+              </v-col>
 
-            <v-col>
-              <v-text-field
-                dense
-                label="Nameserver 2"
-                outlined
-                v-model="new_nameserver2"
-                :value="get_nameserver(1)"
-                :append-icon="
-                  new_nameserver2 !== get_nameserver(1) ? `${mdiPencil}` : ''
-                "
-                :rules="[rules.ip]"
-                hide-details
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-col>
+              <v-col>
+                <v-text-field
+                  dense
+                  label="Nameserver 2"
+                  outlined
+                  v-model="new_nameserver2"
+                  :value="get_nameserver(1)"
+                  :append-icon="
+                    new_nameserver2 !== get_nameserver(1) ? `${mdiPencil}` : ''
+                  "
+                  :rules="[rules.ip]"
+                  hide-details
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-form>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="red darken-1" text @click="nw_dialog = false">
-          Cancel
+        <v-btn color="blue darken-1" text @click="apply()" :disabled="!valid">
+          Apply
         </v-btn>
-        <v-btn color="blue darken-1" text @click="apply()"> Apply </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-import { mdiPencil } from "@mdi/js";
+import { mdiPencil, mdiTreasureChest } from "@mdi/js";
 
 export default {
   props: ["item"],
@@ -116,6 +119,7 @@ export default {
         },
       },
       mdiPencil,
+      valid: mdiTreasureChest,
     };
   },
   methods: {
@@ -126,6 +130,8 @@ export default {
       return this.item.nameservers[index];
     },
     async apply() {
+      this.$refs.form.validate();
+
       let confirmation = await this.$root.$confirm(
         "Confirmation",
         "Are you sure you want to apply these networking changes?"

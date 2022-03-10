@@ -73,6 +73,7 @@
               style="margin-right: 10px; flex-shrink: 1"
               >{{ action }}</v-btn
             >
+            <networking-dialog v-bind:item="item" />
           </div>
         </td>
       </template>
@@ -88,11 +89,12 @@
 <script>
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
+import NetworkingDialog from "./NetworkingDialog";
 import { actions, possible_statuses, ip_types } from "../assets/constants";
 import { mdiClock } from "@mdi/js";
 
 export default {
-  components: { ToolBar, ServicesDialog },
+  components: { ToolBar, ServicesDialog, NetworkingDialog },
   props: ["refresh"],
   data() {
     return {
