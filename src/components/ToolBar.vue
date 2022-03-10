@@ -6,11 +6,11 @@
         clearable
         single-line
         hide-details
-        prepend-inner-icon="mdi-magnify"
+        :prepend-inner-icon="mdiMagnify"
         label="Search"
       ></v-text-field>
 
-      <v-icon style="padding: 0 15px">mdi-eye</v-icon>
+      <v-icon style="padding: 0 15px">{{ mdiEye }}</v-icon>
       <v-btn-toggle dense color="blue" v-model="search.statuses" multiple>
         <v-btn
           v-for="status in possible_statuses"
@@ -21,7 +21,7 @@
       </v-btn-toggle>
 
       <v-btn @click="$emit('refresh', $event)" icon
-        ><v-icon>mdi-refresh</v-icon></v-btn
+        ><v-icon>{{ mdiRefresh }}</v-icon></v-btn
       >
     </v-toolbar>
     <v-divider />
@@ -40,7 +40,9 @@
               <span class="pr-2">
                 {{ item }}
               </span>
-              <v-icon small @click="parent.selectItem(item)"> $delete </v-icon>
+              <v-icon small @click="parent.selectItem(item)">
+                {{ mdiCloseCircle }}
+              </v-icon>
             </v-chip>
           </template>
         </v-combobox>
@@ -58,7 +60,9 @@
               <span class="pr-2">
                 {{ item }}
               </span>
-              <v-icon small @click="parent.selectItem(item)"> $delete </v-icon>
+              <v-icon small @click="parent.selectItem(item)">
+                {{ mdiCloseCircle }}
+              </v-icon>
             </v-chip>
           </template>
         </v-combobox>
@@ -77,7 +81,13 @@
 </template>
 
 <script>
-import { equipments, ip_types, possible_statuses, rooms } from "../assets/constants.js";
+import {
+  equipments,
+  ip_types,
+  possible_statuses,
+  rooms,
+} from "../assets/constants.js";
+import { mdiEye, mdiRefresh, mdiMagnify, mdiCloseCircle } from "@mdi/js";
 
 export default {
   props: ["search"],
@@ -88,7 +98,11 @@ export default {
       ip_types: ip_types,
       rooms: rooms,
       dropdown: false,
-      equipments: equipments
+      equipments: equipments,
+      mdiEye,
+      mdiRefresh,
+      mdiMagnify,
+      mdiCloseCircle,
     };
   },
   mounted() {

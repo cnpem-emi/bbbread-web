@@ -8,7 +8,7 @@
             clearable
             single-line
             hide-details
-            prepend-inner-icon="mdi-magnify"
+            :prepend-inner-icon="mdiMagnify"
             label="Search"
           ></v-text-field>
         </v-col>
@@ -24,7 +24,7 @@
               <v-text-field
                 v-model="date_text"
                 label="Log Date Range"
-                prepend-icon="mdi-calendar"
+                :prepend-icon="mdiCalendar"
                 readonly
                 v-bind="attrs"
                 v-on="on"
@@ -57,7 +57,7 @@
         </v-col>
       </v-row>
       <v-btn @click="$emit('refresh', $event)" icon
-        ><v-icon>mdi-refresh</v-icon></v-btn
+        ><v-icon>{{ mdiRefresh }}</v-icon></v-btn
       >
     </v-toolbar>
   </v-container>
@@ -65,6 +65,7 @@
 
 <script>
 import { possible_statuses } from "../assets/constants";
+import { mdiRefresh, mdiCalendar, mdiMagnify } from "@mdi/js";
 export default {
   props: ["search"],
   data() {
@@ -74,6 +75,9 @@ export default {
       dropdown: false,
       date_range: [],
       date_dialog: false,
+      mdiMagnify,
+      mdiCalendar,
+      mdiRefresh,
     };
   },
   computed: {

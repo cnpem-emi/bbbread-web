@@ -60,7 +60,7 @@
             <span
               style="position: absolute; bottom: 0; left: 0"
               class="grey--text font-weight-light"
-              ><v-icon small left> mdi-clock </v-icon> last seen at
+              ><v-icon small left> {{ mdiClock }} </v-icon> last seen at
               {{ item.last_seen }}</span
             >
             <v-btn
@@ -89,6 +89,7 @@
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
 import { actions, possible_statuses, ip_types } from "../assets/constants";
+import { mdiClock } from "@mdi/js";
 
 export default {
   components: { ToolBar, ServicesDialog },
@@ -125,6 +126,7 @@ export default {
         room: "All",
         ip_types: ip_types,
       },
+      mdiClock,
     };
   },
   computed: {

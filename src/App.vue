@@ -8,15 +8,15 @@
         </v-toolbar>
         <v-tabs background-color="#f2f2f2">
           <v-tab>
-            <v-icon left> mdi-list-status </v-icon>
+            <v-icon left> {{ mdiListStatus }} </v-icon>
             Status
           </v-tab>
           <v-tab>
-            <v-icon left> mdi-clock-alert-outline </v-icon>
+            <v-icon left> {{ mdiClockAlertOutline }} </v-icon>
             Logs
           </v-tab>
           <v-tab>
-            <v-icon left> mdi-lightning-bolt-outline </v-icon>
+            <v-icon left> {{ mdiLightningBoltOutline }} </v-icon>
             Power Supplies
           </v-tab>
           <v-tab-item>
@@ -49,7 +49,7 @@
 
       <template v-slot:action="{ attrs }">
         <v-btn icon text v-bind="attrs" @click="$store.commit('hide_snackbar')">
-          <v-icon>mdi-close</v-icon>
+          <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </template>
     </v-snackbar>
@@ -64,9 +64,23 @@ import FooterBar from "./components/FooterBar";
 import ConfirmDialog from "./components/ConfirmDialog";
 import LoginMenu from "./components/LoginMenu";
 import PsTab from "./components/PsTab";
+import {
+  mdiListStatus,
+  mdiClockAlertOutline,
+  mdiLightningBoltOutline,
+  mdiClose,
+} from "@mdi/js";
 
 export default {
   name: "App",
+  data() {
+    return {
+      mdiListStatus,
+      mdiClockAlertOutline,
+      mdiClose,
+      mdiLightningBoltOutline,
+    };
+  },
 
   components: {
     StatusTab,

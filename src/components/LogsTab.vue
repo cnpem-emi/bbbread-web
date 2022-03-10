@@ -18,7 +18,7 @@
       v-model="selected"
     >
       <template v-slot:item.actions="{ item }">
-        <v-icon small @click="delete_log(item)"> mdi-delete </v-icon>
+        <v-icon small @click="delete_log(item)"> {{ mdiDelete }} </v-icon>
       </template>
       <template v-slot:footer v-if="selected.length > 0">
         <div style="position: absolute" class="pa-0 pl-2">
@@ -37,6 +37,7 @@
 
 <script>
 import LogsToolbar from "./LogsToolbar";
+import { mdiDelete } from "@mdi/js";
 
 export default {
   components: { LogsToolbar },
@@ -59,6 +60,7 @@ export default {
       search: "",
       date_range: [],
       selected: [],
+      mdiDelete,
     };
   },
   computed: {
@@ -133,10 +135,8 @@ export default {
         let index = 0;
         for (let log of this.selected) {
           index = request_body.findIndex((l) => l.key === log.key);
-          if (index >= 0)
-            request_body[index].timestamps.push(log.timestamp);
-          else
-            request_body.push({ key: log.key, timestamps: [log.timestamp] });
+          if (index >= 0) request_body[index].timestamps.push(log.timestamp);
+          else request_body.push({ key: log.key, timestamps: [log.timestamp] });
         }
         await this.send_command("del_logs", request_body, "POST");
         this.selected = [];

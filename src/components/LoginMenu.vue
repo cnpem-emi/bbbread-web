@@ -44,9 +44,22 @@
     >
       <template v-slot:activator="{ on }">
         <v-btn @click="$emit('login')" icon x-large v-on="on">
-          <v-icon>mdi-login</v-icon>
+          <v-icon>{{ mdiLogin }}</v-icon>
         </v-btn>
       </template>
     </v-menu>
   </v-col>
 </template>
+
+<script>
+import { mdiLogin } from "@mdi/js";
+
+export default {
+  data() {
+    return {
+      mdiLogin,
+    };
+  },
+};
+</script>
+

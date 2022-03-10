@@ -49,7 +49,7 @@
             <span
               style="position: absolute; bottom: 0; left: 0"
               class="grey--text font-weight-light"
-              ><v-icon small left> mdi-clock </v-icon> last seen at
+              ><v-icon small left> {{ mdiClock }} </v-icon> last seen at
               {{ item.last_seen }}</span
             >
             <v-btn
@@ -62,6 +62,7 @@
               style="margin-right: 10px; flex-shrink: 1"
               >{{ action }}</v-btn
             >
+            <networking-dialog v-bind:item="item" />
           </div>
         </td>
       </template>
@@ -78,9 +79,11 @@
 import ToolBar from "./ToolBar";
 import ServicesDialog from "./ServicesDialog";
 import { equipments, ip_types, possible_statuses } from "../assets/constants";
+import NetworkingDialog from "./NetworkingDialog";
+import { mdiClock } from "@mdi/js";
 
 export default {
-  components: { ToolBar, ServicesDialog },
+  components: { ToolBar, ServicesDialog, NetworkingDialog },
   props: ["refresh"],
   data() {
     return {
@@ -113,6 +116,7 @@ export default {
         equipments: equipments,
         ip_types: ip_types,
       },
+      mdiClock,
     };
   },
   computed: {
@@ -158,29 +162,42 @@ export default {
               : ""
           }?`
         );
-        if (confirmation) {
-          let reply = await this.send_command(
+        if (!confirmation) return;
+        let reply;
+
+        try {
+          reply = await this.send_command(
             "beaglebones",
             { [action.toLowerCase()]: this.selected.map((b) => b.key) },
             "POST"
           );
-
-          if (reply.status === 200) {
-            this.$store.commit(
-              "show_snackbar",
-              `Successfully applied changes to ${this.selected[0]["name"]} ${
-                this.selected.length > 1
-                  ? `and other ${this.selected.length - 1} nodes`
-                  : ""
-              }!`
-            );
-          } else {
-            this.$store.commit(
-              "show_snackbar",
-              "Failed to send command! Please try reloading the page or relogging"
-            );
-          }
+        } catch (err) {
+          console.error(err);
+          this.$store.commit("show_snackbar", "Failed to send command! ");
         }
+
+        if (reply.status === 200) {
+          this.$store.commit(
+            "show_snackbar",
+            `Successfully applied changes to ${this.selected[0]["name"]} ${
+              this.selected.length > 1
+                ? `and other ${this.selected.length - 1} nodes`
+                : ""
+            }!`
+          );
+        } else if (reply.status == 401) {
+          this.$store.commit(
+            "show_snackbar",
+            "Failed to send command! You don't have the required permissions"
+          );
+        } else {
+          this.$store.commit(
+            "show_snackbar",
+            "Failed to send command! Please try reloading the page or relogging"
+          );
+        }
+
+        this.selected = [];
       } else {
         this.service_dialog = true;
       }
