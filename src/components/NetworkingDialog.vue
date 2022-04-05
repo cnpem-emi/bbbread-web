@@ -9,7 +9,7 @@
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-form v-model="valid">
+        <v-form ref="form" v-model="valid">
           <v-col>
             <v-row>
               <v-col cols="12" sm="9">

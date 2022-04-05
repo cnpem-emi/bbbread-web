@@ -20,7 +20,7 @@
         git
       </v-btn>
       <v-btn
-        href="sei@CNPEMCAMP.onmicrosoft.com"
+        href="mailto:sei@cnpem.br"
         color="white"
         text
         rounded

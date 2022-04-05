@@ -67,6 +67,18 @@ export default {
   },
   methods: {
     async act_service(action) {
+      let confirmation = await this.$root.$confirm(
+        "Confirmation",
+        `Are you sure you want to perform this action on ${
+          this.items[0].name
+        } ${
+          this.items.length > 1
+            ? `and other ${this.items.length - 1} nodes`
+            : ""
+        }?`
+      );
+      if (!confirmation) return;
+
       let service_actions = { restart: [], stop: [] };
       let services = this.selected.filter((s) => s != "custom_service");
 
