@@ -23,7 +23,7 @@
                   v-model="new_ip"
                   :value="item.ip_address"
                   hide-details
-                  :readonly="dhcp"
+                  :disabled="dhcp"
                   :rules="[rules.ip]"
                 ></v-text-field>
               </v-col>
