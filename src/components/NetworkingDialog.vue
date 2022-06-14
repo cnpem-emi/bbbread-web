@@ -124,7 +124,6 @@ export default {
   },
   methods: {
     get_nameserver(index) {
-      console.log(this.dialog);
       if (!this.item.nameservers) {
         return index === 0 ? "10.0.0.71" : "10.0.0.72";
       }
