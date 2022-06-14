@@ -5,7 +5,6 @@
       @refresh="get_all"
       v-bind:search="search" />
     <v-data-table
-      show-expand
       :headers="headers"
       :items="filtered_beagles"
       :search="search.text"
@@ -35,36 +34,8 @@
           >
         </div>
       </template>
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" style="padding: 10px">
-          <v-data-table
-            flat
-            dense
-            :hide-default-footer="true"
-            :headers="innerHeaders"
-            :items="[item]"
-          />
-
-          <div style="text-align: right; position: relative">
-            <span
-              style="position: absolute; bottom: 0; left: 0"
-              class="grey--text font-weight-light"
-              ><v-icon small left> {{ mdiClock }} </v-icon> last seen at
-              {{ item.last_seen }}</span
-            >
-            <v-btn
-              v-for="action in actions"
-              :key="action"
-              class="white--text"
-              color="red"
-              :disabled="$store.state.account === undefined"
-              @click="perform_action(item, action)"
-              style="margin-right: 10px; flex-shrink: 1"
-              >{{ action }}</v-btn
-            >
-            <networking-dialog v-bind:item="item" />
-          </div>
-        </td>
+      <template v-slot:item.actions="{ item }">
+        <details-dialog v-bind:item="item" />
       </template>
     </v-data-table>
 
@@ -77,13 +48,13 @@
 
 <script>
 import ToolBar from "./ToolBar";
-import ServicesDialog from "./ServicesDialog";
+import DetailsDialog from "./DetailsDialog";
 import { equipments, ip_types, possible_statuses } from "../assets/constants";
-import NetworkingDialog from "./NetworkingDialog";
 import { mdiClock } from "@mdi/js";
+import ServicesDialog from "./ServicesDialog";
 
 export default {
-  components: { ToolBar, ServicesDialog, NetworkingDialog },
+  components: { ToolBar, DetailsDialog, ServicesDialog },
   props: ["refresh"],
   data() {
     return {
@@ -93,18 +64,12 @@ export default {
       itemsPerPage: 8,
       selected: [],
       actions: ["Reboot", "Delete", "Services"],
-      innerHeaders: [
-        { text: "Nameservers", value: "nameservers" },
-        { text: "IP Type", value: "ip_type" },
-        { text: "Sector", value: "sector" },
-        { text: "Equipment", value: "equipment" },
-      ],
       headers: [
         { text: "IP", align: "start", value: "ip_address" },
         { text: "Hostname", value: "name" },
         { text: "Status", value: "state_string" },
         { text: "Role", value: "role" },
-        { value: "data-table-expand" },
+        { text: "Actions", value: "actions", sortable: false },
       ],
       items: [],
       symbols: {},
@@ -123,13 +88,13 @@ export default {
     filtered_beagles() {
       return this.items.filter((i) => {
         return (
-          (i.name.indexOf(this.search.text) !== -1 ||
-            i.ip_address.indexOf(this.search.text) !== -1) &&
-          this.search.statuses.some((j) => i.state_string.includes(j)) &&
-          this.search.ip_types.includes(i.ip_type) &&
-          (this.search.room === i.sector || this.search.room === "All") &&
-          (this.search.equipments.includes(i.equipment) ||
-            (this.search.equipments.includes("Unknown") && !i.equipment))
+          i.name.indexOf(this.search.text) !== -1 ||
+          i.ip_address.indexOf(this.search.text) !== -1 ||
+          (this.search.statuses.some((j) => i.state_string.includes(j)) &&
+            this.search.ip_types.includes(i.ip_type) &&
+            (this.search.room === i.sector || this.search.room === "All") &&
+            (this.search.equipments.includes(i.equipment) ||
+              (this.search.equipments.includes("Unknown") && !i.equipment)))
         );
       });
     },
@@ -142,10 +107,11 @@ export default {
     async get_all() {
       this.loading_bbbs = true;
 
-      const response = await this.send_command(`beaglebones`);
+      const response = await this.send_command("beaglebones");
 
       this.items = await response.json();
       this.loading_bbbs = false;
+      this.$forceUpdate();
     },
     async perform_action(item, action) {
       if (item) this.selected = [item];

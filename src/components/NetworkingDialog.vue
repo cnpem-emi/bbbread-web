@@ -1,8 +1,9 @@
 <template>
-  <v-dialog v-model="nw_dialog" max-width="800px">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn v-on="on" v-bind="attrs" color="red" dark> Networking</v-btn>
-    </template>
+  <v-dialog
+    :value="dialog"
+    max-width="800px"
+    @click:outside="$emit('closeDialog')"
+  >
     <v-card>
       <v-card-title>
         <span class="text-h5">Networking</span>
@@ -99,14 +100,13 @@
 </template>
 
 <script>
-import { mdiPencil, mdiTreasureChest } from "@mdi/js";
+import { mdiPencil } from "@mdi/js";
 
 export default {
-  props: ["item"],
+  props: ["item", "dialog"],
   data: function () {
     return {
       dhcp: this.item.ip_type === "DHCP",
-      nw_dialog: false,
       new_ip: this.item.ip_address,
       new_name: this.item.name,
       new_nameserver1: this.get_nameserver(0),
@@ -119,11 +119,12 @@ export default {
         },
       },
       mdiPencil,
-      valid: mdiTreasureChest,
+      valid: true,
     };
   },
   methods: {
     get_nameserver(index) {
+      console.log(this.dialog);
       if (!this.item.nameservers) {
         return index === 0 ? "10.0.0.71" : "10.0.0.72";
       }
@@ -179,7 +180,7 @@ export default {
           "show_snackbar",
           `Successfully applied changes to ${this.item.name}!`
         );
-        this.nw_dialog = false;
+        this.$emit("closeDialog");
       }
     },
   },

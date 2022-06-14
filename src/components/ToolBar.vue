@@ -8,6 +8,7 @@
         hide-details
         :prepend-inner-icon="mdiMagnify"
         label="Search"
+        :value="search_preset"
       ></v-text-field>
 
       <v-icon style="padding: 0 15px">{{ mdiEye }}</v-icon>
@@ -103,11 +104,17 @@ export default {
       mdiRefresh,
       mdiMagnify,
       mdiCloseCircle,
+      search_preset: "",
     };
   },
   mounted() {
     for (let i = 1; i <= 20; i++)
       this.rooms.push(`IA-${i.toString().padStart(2, "0")}`);
+  },
+  created() {
+    let query_string = new URLSearchParams(window.location.search);
+    this.search_preset = query_string.get("search") ?? "";
+    this.$emit("search", this.search_preset);
   },
 };
 </script>

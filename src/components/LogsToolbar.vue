@@ -10,6 +10,7 @@
             hide-details
             :prepend-inner-icon="mdiMagnify"
             label="Search"
+            :value="search_preset"
           ></v-text-field>
         </v-col>
         <v-col cols="2">
@@ -78,12 +79,18 @@ export default {
       mdiMagnify,
       mdiCalendar,
       mdiRefresh,
+      search_preset: "",
     };
   },
   computed: {
     date_text() {
       return this.date_range.join(" ~ ");
     },
+  },
+  created() {
+    let query_string = new URLSearchParams(window.location.search);
+    this.search_preset = query_string.get("search") ?? "";
+    this.$emit("search", this.search_preset);
   },
 };
 </script>
