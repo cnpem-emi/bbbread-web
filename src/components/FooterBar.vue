@@ -19,13 +19,7 @@
       >
         git
       </v-btn>
-      <v-btn
-        href="mailto:sei@cnpem.br"
-        color="white"
-        text
-        rounded
-        class="my-2"
-      >
+      <v-btn href="mailto:sei@cnpem.br" color="white" text rounded class="my-2">
         contact
       </v-btn>
     </v-row>

@@ -139,22 +139,18 @@ export default {
 
       if (!confirmation) return;
 
-      let body = {};
+      let body = { key: this.item.key };
       if (
         this.new_nameserver2 !== this.get_nameserver(1) ||
         this.new_nameserver1 !== this.get_nameserver(0)
       ) {
-        body["nameservers"] = [
-          {
-            key: this.item.key,
-            nameservers: [this.new_nameserver1, this.new_nameserver2],
-          },
-        ];
+        Object.assign(body, {
+          nameservers: [this.new_nameserver1, this.new_nameserver2],
+        });
       }
 
-      if (this.new_name !== this.item.name) {
-        body["hostname"] = [{ key: this.item.key, name: this.new_name }];
-      }
+      if (this.new_name !== this.item.name)
+        Object.assign(body, { hostname: this.new_name });
 
       if (
         this.new_ip !== this.item.ip_address ||
@@ -162,19 +158,16 @@ export default {
       ) {
         let ip_subdiv = this.new_ip.split(".");
         ip_subdiv[ip_subdiv.length - 1] = "1";
-        body["ip"] = [
-          {
-            type: this.dhcp ? "dhcp" : "manual",
-            key: this.item.key,
-            ip: this.new_ip,
-            mask: "255.255.255.0",
-            gateway: ip_subdiv.join("."),
-          },
-        ];
+        Object.assign(body, {
+          type: this.dhcp ? "dhcp" : "manual",
+          ip: this.new_ip,
+          mask: "255.255.255.0",
+          gateway: ip_subdiv.join("."),
+        });
       }
 
-      if (body !== {}) {
-        await this.send_command("networking", body, "POST");
+      if (body !== { key: this.item.key }) {
+        await this.send_command("beaglebones/networking", [body], "POST");
         this.$store.commit(
           "show_snackbar",
           `Successfully applied changes to ${this.item.name}!`

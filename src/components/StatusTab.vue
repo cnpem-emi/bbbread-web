@@ -35,11 +35,19 @@
         </div>
       </template>
       <template v-slot:item.actions="{ item }">
-        <details-dialog v-bind:item="item" />
+        <v-icon small class="mr-2" @click="item.show = true">
+          {{ mdiTextBoxSearchOutline }}
+        </v-icon>
+        <details-dialog
+          v-if="item.show"
+          @closeDialog="item.show = false"
+          :dialog="item.show"
+          v-bind:item="item"
+        />
       </template>
     </v-data-table>
 
-    <ServicesDialog
+    <services-dialog
       v-bind:items="selected"
       :dialog="service_dialog"
       @closeDialog="service_dialog = false"
@@ -50,7 +58,7 @@
 import ToolBar from "./ToolBar";
 import DetailsDialog from "./DetailsDialog";
 import { equipments, ip_types, possible_statuses } from "../assets/constants";
-import { mdiClock } from "@mdi/js";
+import { mdiClock, mdiTextBoxSearchOutline } from "@mdi/js";
 import ServicesDialog from "./ServicesDialog";
 
 export default {
@@ -60,6 +68,7 @@ export default {
     return {
       filter: {},
       service_dialog: false,
+      details_dialog: false,
       page: 1,
       itemsPerPage: 8,
       selected: [],
@@ -82,6 +91,7 @@ export default {
         ip_types: ip_types,
       },
       mdiClock,
+      mdiTextBoxSearchOutline,
     };
   },
   computed: {
@@ -108,8 +118,13 @@ export default {
       this.loading_bbbs = true;
 
       const response = await this.send_command("beaglebones");
+      const resp_json = await response.json();
 
-      this.items = await response.json();
+      if (!this.items.length) this.items = resp_json;
+
+      this.items = this.items.map((item, i) =>
+        Object.assign({}, { show: item.show ?? false }, resp_json[i])
+      );
       this.loading_bbbs = false;
       this.$forceUpdate();
     },
