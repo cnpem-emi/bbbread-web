@@ -40,11 +40,19 @@
         </div>
       </template>
       <template v-slot:item.actions="{ item }">
-        <details-dialog v-bind:item="item" />
+        <v-icon small class="mr-2" @click="item.show = true">
+          {{ mdiTextBoxSearchOutline }}
+        </v-icon>
+        <details-dialog
+          v-if="item.show"
+          @closeDialog="item.show = false"
+          :dialog="item.show"
+          v-bind:item="item"
+        />
       </template>
     </v-data-table>
 
-    <ServicesDialog
+    <services-dialog
       v-bind:items="selected"
       :dialog="service_dialog"
       @closeDialog="service_dialog = false"
@@ -56,7 +64,7 @@ import ToolBar from "./ToolBar";
 import DetailsDialog from "./DetailsDialog";
 import ServicesDialog from "./ServicesDialog";
 import { actions, possible_statuses, ip_types } from "../assets/constants";
-import { mdiClock } from "@mdi/js";
+import { mdiClock, mdiTextBoxSearchOutline } from "@mdi/js";
 
 export default {
   components: { ToolBar, ServicesDialog, DetailsDialog },
@@ -88,6 +96,7 @@ export default {
         ip_types: ip_types,
       },
       mdiClock,
+      mdiTextBoxSearchOutline
     };
   },
   computed: {
@@ -111,8 +120,14 @@ export default {
       else this.selected = selected.items;
     },
     async get_all() {
-      const response = await this.send_command("beaglebones?ps");
-      this.items = await response.json();
+      const response = await this.send_command("beaglebones?ps=True");
+      const resp_json = await response.json();
+
+      if (!this.items.length) this.items = resp_json;
+
+      this.items = this.items.map((item, i) =>
+        Object.assign({}, { show: item.show ?? false }, resp_json[i])
+      );
       this.loading_bbbs = false;
     },
     async performAction(item, action) {
