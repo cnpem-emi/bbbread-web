@@ -19,8 +19,10 @@
             <v-icon left> {{ mdiLightningBoltOutline }} </v-icon>
             Power Supplies
           </v-tab>
-          <v-tab href="https://github.com/lnls-sirius/bbb-function/blob/master/src/scripts/AUTOCONFIG.xlsx/">
-          <v-icon left> {{ mdiFileTableBoxMultipleOutline }} </v-icon>
+          <v-tab
+            href="https://github.com/lnls-sirius/bbb-function/blob/master/src/scripts/AUTOCONFIG.xlsx/"
+          >
+            <v-icon left> {{ mdiFileTableBoxMultipleOutline }} </v-icon>
             Autoconfig
           </v-tab>
           <v-tab-item>
@@ -78,7 +80,7 @@ import {
   mdiClockAlertOutline,
   mdiLightningBoltOutline,
   mdiClose,
-  mdiFileTableBoxMultipleOutline 
+  mdiFileTableBoxMultipleOutline,
 } from "@mdi/js";
 
 export default {
@@ -89,7 +91,7 @@ export default {
       mdiClockAlertOutline,
       mdiClose,
       mdiLightningBoltOutline,
-      mdiFileTableBoxMultipleOutline 
+      mdiFileTableBoxMultipleOutline,
     };
   },
 

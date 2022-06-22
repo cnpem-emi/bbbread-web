@@ -5,7 +5,6 @@
       @refresh="get_all"
       v-bind:search="search" />
     <v-data-table
-      show-expand
       :headers="headers"
       :items="filtered_beagles"
       :search="search.text"
@@ -40,46 +39,20 @@
           >
         </div>
       </template>
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" style="padding: 10px">
-          <v-data-table
-            flat
-            dense
-            :hide-default-footer="true"
-            :headers="innerHeaders"
-            :items="[item]"
-          >
-            <template v-slot:item.udc="{ item }">
-              <v-chip small v-for="udc in item.udc" :key="udc">
-                {{ udc }}
-              </v-chip>
-            </template>
-          </v-data-table>
-
-          <div style="text-align: right; position: relative">
-            <span
-              style="position: absolute; bottom: 0; left: 0"
-              class="grey--text font-weight-light"
-              ><v-icon small left> {{ mdiClock }} </v-icon> last seen at
-              {{ item.last_seen }}</span
-            >
-            <v-btn
-              v-for="action in actions"
-              :key="action"
-              class="white--text"
-              color="red"
-              :disabled="$store.state.account === undefined"
-              @click="performAction(item, action)"
-              style="margin-right: 10px; flex-shrink: 1"
-              >{{ action }}</v-btn
-            >
-            <networking-dialog v-bind:item="item" />
-          </div>
-        </td>
+      <template v-slot:item.actions="{ item }">
+        <v-icon small class="mr-2" @click="item.show = true">
+          {{ mdiTextBoxSearchOutline }}
+        </v-icon>
+        <details-dialog
+          v-if="item.show"
+          @closeDialog="item.show = false"
+          :dialog="item.show"
+          v-bind:item="item"
+        />
       </template>
     </v-data-table>
 
-    <ServicesDialog
+    <services-dialog
       v-bind:items="selected"
       :dialog="service_dialog"
       @closeDialog="service_dialog = false"
@@ -88,13 +61,13 @@
 
 <script>
 import ToolBar from "./ToolBar";
+import DetailsDialog from "./DetailsDialog";
 import ServicesDialog from "./ServicesDialog";
-import NetworkingDialog from "./NetworkingDialog";
 import { actions, possible_statuses, ip_types } from "../assets/constants";
-import { mdiClock } from "@mdi/js";
+import { mdiClock, mdiTextBoxSearchOutline } from "@mdi/js";
 
 export default {
-  components: { ToolBar, ServicesDialog, NetworkingDialog },
+  components: { ToolBar, ServicesDialog, DetailsDialog },
   props: ["refresh"],
   data() {
     return {
@@ -105,19 +78,13 @@ export default {
       itemsPerPage: 8,
       selected: [],
       actions: actions,
-      innerHeaders: [
-        { text: "Nameservers", value: "nameservers" },
-        { text: "IP Type", value: "ip_type" },
-        { text: "Sector", value: "sector" },
-        { text: "UDC", value: "udc" },
-      ],
       headers: [
         { text: "IP", align: "start", value: "ip_address" },
         { text: "Hostname", value: "name" },
         { text: "Status", value: "state_string" },
         { text: "Power Supplies", value: "ps", width: "45%" },
         { text: "Role", value: "role" },
-        { value: "data-table-expand" },
+        { text: "Actions", value: "actions", sortable: false },
       ],
       items: [],
       symbols: {},
@@ -129,6 +96,7 @@ export default {
         ip_types: ip_types,
       },
       mdiClock,
+      mdiTextBoxSearchOutline
     };
   },
   computed: {
@@ -152,8 +120,14 @@ export default {
       else this.selected = selected.items;
     },
     async get_all() {
-      const response = await this.send_command("beaglebones?ps");
-      this.items = await response.json();
+      const response = await this.send_command("beaglebones?ps=True");
+      const resp_json = await response.json();
+
+      if (!this.items.length) this.items = resp_json;
+
+      this.items = this.items.map((item, i) =>
+        Object.assign({}, { show: item.show ?? false }, resp_json[i])
+      );
       this.loading_bbbs = false;
     },
     async performAction(item, action) {

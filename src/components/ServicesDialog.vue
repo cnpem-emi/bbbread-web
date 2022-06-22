@@ -79,22 +79,17 @@ export default {
       );
       if (!confirmation) return;
 
-      let service_actions = { restart: [], stop: [] };
       let services = this.selected.filter((s) => s != "custom_service");
 
       if (this.selected.includes("custom_service")) {
         services.push(this.custom_service);
       }
-      for (let beagle of this.items) {
-        service_actions[action].push({
-          key: beagle.key,
-          services: services,
-        });
-      }
 
       const response = await this.send_command(
-        "services",
-        service_actions,
+        "beaglebones/services",
+        this.items.map((b) => {
+          return { key: b.key, [action]: services };
+        }),
         "POST"
       );
 

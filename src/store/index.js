@@ -19,7 +19,7 @@ const store = new Vuex.Store({
         account: undefined,
         message: "",
         snackbar: false,
-        url: "10.0.38.46"
+        url: "ais-eng-srv-la.cnpem.br"
     },
     mutations: {
         set_token(state, token) {

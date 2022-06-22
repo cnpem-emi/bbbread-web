@@ -9,7 +9,7 @@
     <v-data-table
       :headers="headers"
       :items="filtered_keys"
-      :search="search"
+      :search="search.text"
       :loading="loading_bbbs"
       :sort-by.sync="sortBy"
       :show-select="$store.state.account !== undefined"
@@ -71,7 +71,7 @@ export default {
       return this.items.filter(
         (i) =>
           ([i.ip_address, i.name, i.message].some((e) =>
-            e.includes(this.search)
+            e.includes(this.search ?? "")
           ) &&
             (!this.date_range.length ||
               (this.date_range[0] < i.date && this.date_range[1] > i.date))) ||

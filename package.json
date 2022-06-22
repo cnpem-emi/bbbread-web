@@ -1,6 +1,6 @@
 {
   "name": "bbbread-vue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -42,7 +42,7 @@
     "rules": {}
   },
   "browserslist": [
-    "> 0.1%",
+    ">0.1% and not ie < 12",
     "not dead"
   ]
 }
