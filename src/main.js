@@ -58,6 +58,5 @@ if (window.location.host === "vpn.cnpem.br") {
   const match = ipRegExp.exec(window.location.href);
   if (match && match.length > 1) store.commit("set_url", match[1]);
 } else {
-  console.log(process.env.NODE_ENV);
   if (process.env.NODE_ENV !== "development") store.commit("set_url", window.location.host);
 }
