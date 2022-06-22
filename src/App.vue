@@ -4,7 +4,9 @@
       <v-card>
         <v-toolbar flat color="#0059b3" dark>
           <v-toolbar-title class="flex-grow-1">BBBread</v-toolbar-title>
-          <v-btn icon @click="get_csv"><v-icon>{{mdiFileDownload}}</v-icon></v-btn>
+          <v-btn icon @click="get_csv"
+            ><v-icon>{{ mdiFileDownload }}</v-icon></v-btn
+          >
           <LoginMenu class="flex-grow-0" @logout="logout" @login="login" />
         </v-toolbar>
         <v-tabs background-color="#f2f2f2">
@@ -82,7 +84,7 @@ import {
   mdiLightningBoltOutline,
   mdiClose,
   mdiFileTableBoxMultipleOutline,
-  mdiFileDownload
+  mdiFileDownload,
 } from "@mdi/js";
 
 export default {
@@ -94,7 +96,7 @@ export default {
       mdiClose,
       mdiLightningBoltOutline,
       mdiFileTableBoxMultipleOutline,
-      mdiFileDownload
+      mdiFileDownload,
     };
   },
 
@@ -153,18 +155,26 @@ export default {
       const response = await this.send_command("beaglebones");
       const resp_json = await response.json();
 
-      let csv = Object.keys(resp_json[0]).join(',')
+      let csv = Object.keys(resp_json[0]).join(",");
 
-      for (let beagle of resp_json)
-        csv += "\n" + Object.values(beagle);
+      for (let beagle of resp_json) csv += "\n" + Object.values(beagle);
 
-      var utf_arr = new Uint16Array(csv.split('').map( function (k){
-        return k.charCodeAt(0);
-      }));
+      var utf_arr = new Uint16Array(
+        csv.split("").map(function (k) {
+          return k.charCodeAt(0);
+        })
+      );
 
-      const download = URL.createObjectURL(new Blob([utf_arr], { type: 'text/csv;charset=UTF-16LE;' }));
-      window.location.replace(download);
-    }
+      const download = URL.createObjectURL(
+        new Blob([utf_arr], { type: "text/csv;charset=UTF-16LE;" })
+      );
+
+      // This is hackish, but seems to be the best way without opening a new window
+      let hidden_link = document.createElement("a");
+      hidden_link.href = download;
+      hidden_link.download = "beaglebones.csv";
+      hidden_link.click();
+    },
   },
 };
 </script>
