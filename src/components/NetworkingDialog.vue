@@ -124,9 +124,8 @@ export default {
   },
   methods: {
     get_nameserver(index) {
-      if (!this.item.nameservers) {
-        return index === 0 ? "10.0.0.71" : "10.0.0.72";
-      }
+      if (!this.item.nameservers) return "";
+
       return this.item.nameservers[index];
     },
     async apply() {

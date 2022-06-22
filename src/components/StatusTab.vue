@@ -98,13 +98,13 @@ export default {
     filtered_beagles() {
       return this.items.filter((i) => {
         return (
-          i.name.indexOf(this.search.text) !== -1 ||
-          i.ip_address.indexOf(this.search.text) !== -1 ||
-          (this.search.statuses.some((j) => i.state_string.includes(j)) &&
-            this.search.ip_types.includes(i.ip_type) &&
-            (this.search.room === i.sector || this.search.room === "All") &&
-            (this.search.equipments.includes(i.equipment) ||
-              (this.search.equipments.includes("Unknown") && !i.equipment)))
+          i.name &&
+          (i.name.indexOf(this.search.text) !== -1 ||
+            i.ip_address.indexOf(this.search.text) !== -1) &&
+          this.search.statuses.some((j) => i.state_string.includes(j)) &&
+          this.search.ip_types.includes(i.ip_type) &&
+          (this.search.room === i.sector || this.search.room === "All") &&
+          this.search.equipments.includes(i.equipment)
         );
       });
     },
@@ -125,6 +125,7 @@ export default {
       this.items = this.items.map((item, i) =>
         Object.assign({}, { show: item.show ?? false }, resp_json[i])
       );
+
       this.loading_bbbs = false;
       this.$forceUpdate();
     },

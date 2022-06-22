@@ -4,6 +4,7 @@
       <v-card>
         <v-toolbar flat color="#0059b3" dark>
           <v-toolbar-title class="flex-grow-1">BBBread</v-toolbar-title>
+          <v-btn icon @click="get_csv"><v-icon>{{mdiFileDownload}}</v-icon></v-btn>
           <LoginMenu class="flex-grow-0" @logout="logout" @login="login" />
         </v-toolbar>
         <v-tabs background-color="#f2f2f2">
@@ -81,6 +82,7 @@ import {
   mdiLightningBoltOutline,
   mdiClose,
   mdiFileTableBoxMultipleOutline,
+  mdiFileDownload
 } from "@mdi/js";
 
 export default {
@@ -92,6 +94,7 @@ export default {
       mdiClose,
       mdiLightningBoltOutline,
       mdiFileTableBoxMultipleOutline,
+      mdiFileDownload
     };
   },
 
@@ -146,6 +149,22 @@ export default {
     getInitials(account) {
       return account.name.split(" ")[0].substring(0, 1);
     },
+    async get_csv() {
+      const response = await this.send_command("beaglebones");
+      const resp_json = await response.json();
+
+      let csv = Object.keys(resp_json[0]).join(',')
+
+      for (let beagle of resp_json)
+        csv += "\n" + Object.values(beagle);
+
+      var utf_arr = new Uint16Array(csv.split('').map( function (k){
+        return k.charCodeAt(0);
+      }));
+
+      const download = URL.createObjectURL(new Blob([utf_arr], { type: 'text/csv;charset=UTF-16LE;' }));
+      window.location.replace(download);
+    }
   },
 };
 </script>
