@@ -86,7 +86,7 @@ export default {
     async get_all() {
       this.loading_bbbs = true;
 
-      let response = await this.send_command("logs");
+      let response = await this.send_command("beaglebones/logs");
 
       this.items = await response.json();
       for (let i in this.items) {
@@ -116,7 +116,7 @@ export default {
 
       if (confirmed) {
         this.send_command(
-          "del_logs",
+          "beaglebones/del_logs",
           [{ key: item.key, timestamps: [item.timestamp] }],
           "POST"
         );
