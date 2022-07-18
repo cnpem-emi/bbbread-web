@@ -138,7 +138,7 @@ export default {
           if (index >= 0) request_body[index].timestamps.push(log.timestamp);
           else request_body.push({ key: log.key, timestamps: [log.timestamp] });
         }
-        await this.send_command("del_logs", request_body, "POST");
+        await this.send_command("beaglebones/del_logs", request_body, "POST");
         this.selected = [];
         this.get_all();
       }
