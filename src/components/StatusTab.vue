@@ -12,14 +12,15 @@
       item-key="key"
       :show-select="$store.state.account !== undefined"
       @toggle-select-all="toggle_select"
+      @click:row="row_click"
       v-model="selected"
+      class="row-pointer"
     >
       <template v-slot:item.state_string="{ item }">
         <v-chip :color="get_color(item.state_string)" dark>
           {{ item.state_string }}
         </v-chip>
       </template>
-
       <template v-slot:footer v-if="selected.length > 0">
         <div style="position: absolute" class="pa-0 pl-2">
           <v-btn
@@ -113,6 +114,9 @@ export default {
     toggle_select(selected) {
       if (!selected.value) this.selected = [];
       else this.selected = selected.items;
+    },
+    row_click(item) {
+      item.show = true;
     },
     async get_all() {
       this.loading_bbbs = true;
@@ -218,5 +222,9 @@ export default {
 
 div:first-child .v-data-iterator {
   color: white;
+}
+
+.row-pointer >>> tbody tr :hover {
+  cursor: pointer;
 }
 </style>
