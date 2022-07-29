@@ -63,10 +63,6 @@ const store = new Vuex.Store({
                 Object.assign({}, { show: item.show ?? false }, resp_json[i])
             );
             state.loading = false;
-        },
-        show_beaglebone(state, beaglebone) {
-            console.log(state.beaglebones[state.beaglebones.findIndex(i => (i.key === beaglebone))]);
-            state.beaglebones[state.beaglebones.findIndex(i => (i.key === beaglebone))].show = true;
         }
     }
 });
