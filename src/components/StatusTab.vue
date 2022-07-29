@@ -39,7 +39,7 @@
         </div>
       </template>
 
-      <template v-if="psOnly" v-slot:item.ps="{ item }">
+      <template v-slot:item.ps="{ item }">
         <v-chip small v-for="ps in item.ps" :key="ps">
           {{ ps }}
         </v-chip>
@@ -75,7 +75,7 @@ export default {
       headers: [
         { text: "IP", align: "start", value: "ip_address" },
         { text: "Hostname", value: "name" },
-        { text: "Power Supplies", value: "ps", width: "45%" },
+        { text: "Power Supplies", value: "ps", width: "45%", align: " d-none" },
         { text: "Status", value: "state_string" },
         { text: "Role", value: "role" },
       ],
@@ -91,6 +91,11 @@ export default {
       mdiClock,
       mdiTextBoxSearchOutline,
     };
+  },
+  watch: {
+    psOnly() {
+      this.headers[2].align = this.psOnly ? "start" : " d-none";
+    },
   },
   computed: {
     filtered_beagles() {

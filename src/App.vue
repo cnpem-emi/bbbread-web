@@ -199,7 +199,6 @@ export default {
       hidden_link.href = download;
       hidden_link.download = "beaglebones.csv";
       hidden_link.click();
-      console.log(this.tab);
     },
   },
 };
