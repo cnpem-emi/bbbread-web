@@ -75,7 +75,7 @@ export default {
       headers: [
         { text: "IP", align: "start", value: "ip_address" },
         { text: "Hostname", value: "name" },
-        { text: "Power Supplies", value: "ps", width: "45%", align: " d-none" },
+        { text: "Power Supplies", value: "ps", width: "45%" },
         { text: "Status", value: "state_string" },
         { text: "Role", value: "role" },
       ],
