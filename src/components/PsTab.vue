@@ -1,14 +1,11 @@
 <template>
   <v-container fluid>
-    <ToolBar
-      @search="update_search"
-      @refresh="get_all"
-      v-bind:search="search" />
+    <ToolBar v-bind:search="search" />
     <v-data-table
       :headers="headers"
       :items="filtered_beagles"
-      :search="search.text"
-      :loading="loading_bbbs"
+      :search="searchText"
+      :loading="$store.state.loading"
       item-key="key"
       :show-select="$store.state.account !== undefined"
       @toggle-select-all="toggle_select"
@@ -68,7 +65,7 @@ import { mdiClock, mdiTextBoxSearchOutline } from "@mdi/js";
 
 export default {
   components: { ToolBar, ServicesDialog, DetailsDialog },
-  props: ["refresh"],
+  props: ["refresh", "searchText"],
   data() {
     return {
       filter: {},
@@ -90,23 +87,23 @@ export default {
       symbols: {},
       loading_bbbs: true,
       search: {
-        text: "",
         statuses: possible_statuses,
         room: "All",
         ip_types: ip_types,
       },
       mdiClock,
-      mdiTextBoxSearchOutline
+      mdiTextBoxSearchOutline,
     };
   },
   computed: {
     filtered_beagles() {
-      return this.items.filter((i) => {
+      return this.$store.state.beaglebones.filter((i) => {
         return (
+          i.ps !== undefined &&
           i.state_string !== undefined &&
-          (i.name.indexOf(this.search.text) !== -1 ||
-            i.ip_address.indexOf(this.search.text) !== -1 ||
-            i.ps.join("").includes(this.search.text)) &&
+          (i.name.indexOf(this.searchText) !== -1 ||
+            i.ip_address.indexOf(this.searchText) !== -1 ||
+            i.ps.join("").includes(this.searchText)) &&
           this.search.statuses.some((j) => i.state_string.includes(j)) &&
           this.search.ip_types.includes(i.ip_type) &&
           (this.search.room === i.sector || this.search.room === "All")
@@ -118,17 +115,6 @@ export default {
     toggle_select(selected) {
       if (!selected.value) this.selected = [];
       else this.selected = selected.items;
-    },
-    async get_all() {
-      const response = await this.send_command("beaglebones?ps=True");
-      const resp_json = await response.json();
-
-      if (!this.items.length) this.items = resp_json;
-
-      this.items = this.items.map((item, i) =>
-        Object.assign({}, { show: item.show ?? false }, resp_json[i])
-      );
-      this.loading_bbbs = false;
     },
     async performAction(item, action) {
       if (item) this.selected = [item];
@@ -165,7 +151,7 @@ export default {
       } else {
         this.service_dialog = true;
       }
-      this.get_all();
+      this.$store.commit("update_beaglebones");
     },
     get_color(item) {
       switch (item) {
@@ -177,13 +163,6 @@ export default {
           return "orange";
       }
     },
-    update_search(search) {
-      this.search.text = search;
-    },
-  },
-  created() {
-    this.get_all();
-    this.interval = setInterval(this.get_all, 35000);
   },
 };
 </script>

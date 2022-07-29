@@ -1,15 +1,10 @@
 <template>
   <v-container fluid>
-    <LogsToolbar
-      @search="update_search"
-      @refresh="get_all"
-      @date="update_date_range"
-      v-bind:search="search"
-    />
+    <LogsToolbar @refresh="get_all" @date="update_date_range" />
     <v-data-table
       :headers="headers"
       :items="filtered_keys"
-      :search="search.text"
+      :search="searchText"
       :loading="loading_bbbs"
       :sort-by.sync="sortBy"
       :show-select="$store.state.account !== undefined"
@@ -41,6 +36,7 @@ import { mdiDelete } from "@mdi/js";
 
 export default {
   components: { LogsToolbar },
+  props: ["searchText"],
   data() {
     return {
       filter: {},
@@ -57,7 +53,6 @@ export default {
       symbols: {},
       loading_bbbs: true,
       sortBy: "date",
-      search: "",
       date_range: [],
       selected: [],
       mdiDelete,
@@ -71,7 +66,7 @@ export default {
       return this.items.filter(
         (i) =>
           ([i.ip_address, i.name, i.message].some((e) =>
-            e.includes(this.search ?? "")
+            e.includes(this.searchText ?? "")
           ) &&
             (!this.date_range.length ||
               (this.date_range[0] < i.date && this.date_range[1] > i.date))) ||
@@ -103,9 +98,6 @@ export default {
         default:
           return "yellow";
       }
-    },
-    update_search(search) {
-      this.search = search;
     },
     async delete_log(item) {
       let confirmed = await this.$root.$confirm(

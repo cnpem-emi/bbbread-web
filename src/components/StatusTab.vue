@@ -1,14 +1,11 @@
 <template>
   <v-container fluid>
-    <ToolBar
-      @search="update_search"
-      @refresh="get_all"
-      v-bind:search="search" />
+    <ToolBar v-bind:search="search" />
     <v-data-table
       :headers="headers"
       :items="filtered_beagles"
-      :search="search.text"
-      :loading="loading_bbbs"
+      :search="searchText"
+      :loading="$store.state.loading"
       item-key="key"
       :show-select="$store.state.account !== undefined"
       @toggle-select-all="toggle_select"
@@ -20,6 +17,12 @@
         <v-chip :color="get_color(item.state_string)" dark>
           {{ item.state_string }}
         </v-chip>
+        <details-dialog
+          v-if="item.show"
+          @closeDialog="item.show = false"
+          :dialog="item.show"
+          v-bind:item="item"
+        />
       </template>
       <template v-slot:footer v-if="selected.length > 0">
         <div style="position: absolute" class="pa-0 pl-2">
@@ -34,17 +37,6 @@
             >{{ action }}</v-btn
           >
         </div>
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <v-icon small class="mr-2" @click="item.show = true">
-          {{ mdiTextBoxSearchOutline }}
-        </v-icon>
-        <details-dialog
-          v-if="item.show"
-          @closeDialog="item.show = false"
-          :dialog="item.show"
-          v-bind:item="item"
-        />
       </template>
     </v-data-table>
 
@@ -64,7 +56,7 @@ import ServicesDialog from "./ServicesDialog";
 
 export default {
   components: { ToolBar, DetailsDialog, ServicesDialog },
-  props: ["refresh"],
+  props: ["refresh", "searchText"],
   data() {
     return {
       filter: {},
@@ -79,13 +71,11 @@ export default {
         { text: "Hostname", value: "name" },
         { text: "Status", value: "state_string" },
         { text: "Role", value: "role" },
-        { text: "Actions", value: "actions", sortable: false },
       ],
       items: [],
       symbols: {},
       loading_bbbs: true,
       search: {
-        text: "",
         statuses: possible_statuses,
         room: "All",
         equipments: equipments,
@@ -97,11 +87,11 @@ export default {
   },
   computed: {
     filtered_beagles() {
-      return this.items.filter((i) => {
+      return this.$store.state.beaglebones.filter((i) => {
         return (
           i.name &&
-          (i.name.indexOf(this.search.text) !== -1 ||
-            i.ip_address.indexOf(this.search.text) !== -1) &&
+          (i.name.indexOf(this.searchText) !== -1 ||
+            i.ip_address.indexOf(this.searchText) !== -1) &&
           this.search.statuses.some((j) => i.state_string.includes(j)) &&
           this.search.ip_types.includes(i.ip_type) &&
           (this.search.room === i.sector || this.search.room === "All") &&
@@ -117,21 +107,6 @@ export default {
     },
     row_click(item) {
       item.show = true;
-    },
-    async get_all() {
-      this.loading_bbbs = true;
-
-      const response = await this.send_command("beaglebones");
-      const resp_json = await response.json();
-
-      if (!this.items.length) this.items = resp_json;
-
-      this.items = this.items.map((item, i) =>
-        Object.assign({}, { show: item.show ?? false }, resp_json[i])
-      );
-
-      this.loading_bbbs = false;
-      this.$forceUpdate();
     },
     async perform_action(item, action) {
       if (item) this.selected = [item];
@@ -188,7 +163,7 @@ export default {
         this.service_dialog = true;
       }
 
-      this.get_all();
+      this.$store.commit("update_beaglebones");
     },
     get_color(item) {
       switch (item) {
@@ -200,13 +175,12 @@ export default {
           return "orange";
       }
     },
-    update_search(search) {
-      this.search.text = search;
-    },
   },
   created() {
-    this.get_all();
-    this.interval = setInterval(this.get_all, 25000);
+    this.interval = setInterval(
+      this.$store.commit("update_beaglebones"),
+      25000
+    );
   },
 };
 </script>

@@ -3,11 +3,40 @@
     <v-main fluid>
       <v-card>
         <v-toolbar flat color="#0059b3" dark>
-          <v-toolbar-title class="flex-grow-1">BBBread</v-toolbar-title>
-          <v-btn icon @click="get_csv"
-            ><v-icon>{{ mdiFileDownload }}</v-icon></v-btn
-          >
-          <LoginMenu class="flex-grow-0" @logout="logout" @login="login" />
+          <v-row dense>
+            <v-col align-self="center">
+              <v-toolbar-title>BBBread</v-toolbar-title>
+            </v-col>
+            <v-col justify="center" align-self="center">
+              <v-row align="center">
+                <v-text-field
+                  v-model="search"
+                  clearable
+                  single-line
+                  hide-details
+                  :prepend-inner-icon="mdiMagnify"
+                  label="Search"
+                  :value="searchPreset"
+                ></v-text-field>
+                <v-btn @click="$store.commit('update_beaglebones')" icon
+                  ><v-icon>{{ mdiRefresh }}</v-icon></v-btn
+                >
+              </v-row>
+            </v-col>
+            <v-col>
+              <v-row justify="center" align="center">
+                <v-spacer />
+                <v-btn icon @click="get_csv"
+                  ><v-icon>{{ mdiFileDownload }}</v-icon></v-btn
+                >
+                <LoginMenu
+                  class="flex-grow-0"
+                  @logout="logout"
+                  @login="login"
+                />
+              </v-row>
+            </v-col>
+          </v-row>
         </v-toolbar>
         <v-tabs background-color="#f2f2f2">
           <v-tab>
@@ -30,17 +59,17 @@
           </v-tab>
           <v-tab-item>
             <v-card flat>
-              <StatusTab />
+              <StatusTab v-bind:searchText="search" />
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <LogsTab />
+              <LogsTab v-bind:searchText="search" />
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <PsTab />
+              <ps-tab v-bind:searchText="search" />
             </v-card>
           </v-tab-item>
           <v-tab-item>
@@ -85,18 +114,24 @@ import {
   mdiClose,
   mdiFileTableBoxMultipleOutline,
   mdiFileDownload,
+  mdiMagnify,
+  mdiRefresh,
 } from "@mdi/js";
 
 export default {
   name: "App",
   data() {
     return {
+      searchPreset: "",
+      search: "",
       mdiListStatus,
       mdiClockAlertOutline,
       mdiClose,
       mdiLightningBoltOutline,
       mdiFileTableBoxMultipleOutline,
       mdiFileDownload,
+      mdiMagnify,
+      mdiRefresh,
     };
   },
 
@@ -125,6 +160,9 @@ export default {
     }
     accounts[0].initials = this.getInitials(accounts[0]);
     this.$store.commit("set_account", accounts[0]);
+
+    let query_string = new URLSearchParams(window.location.search);
+    this.search_preset = query_string.get("search") ?? "";
   },
   methods: {
     async login() {
