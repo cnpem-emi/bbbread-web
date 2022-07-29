@@ -38,6 +38,12 @@
           >
         </div>
       </template>
+
+      <template v-if="psOnly" v-slot:item.ps="{ item }">
+        <v-chip small v-for="ps in item.ps" :key="ps">
+          {{ ps }}
+        </v-chip>
+      </template>
     </v-data-table>
 
     <services-dialog
@@ -56,7 +62,7 @@ import ServicesDialog from "./ServicesDialog";
 
 export default {
   components: { ToolBar, DetailsDialog, ServicesDialog },
-  props: ["refresh", "searchText"],
+  props: ["refresh", "searchText", "psOnly"],
   data() {
     return {
       filter: {},
@@ -69,6 +75,7 @@ export default {
       headers: [
         { text: "IP", align: "start", value: "ip_address" },
         { text: "Hostname", value: "name" },
+        { text: "Power Supplies", value: "ps", width: "45%", align: " d-none" },
         { text: "Status", value: "state_string" },
         { text: "Role", value: "role" },
       ],
@@ -90,6 +97,7 @@ export default {
       return this.$store.state.beaglebones.filter((i) => {
         return (
           i.name &&
+          (i.ps !== undefined || !this.psOnly) &&
           (i.name.indexOf(this.searchText) !== -1 ||
             i.ip_address.indexOf(this.searchText) !== -1) &&
           this.search.statuses.some((j) => i.state_string.includes(j)) &&
@@ -186,6 +194,14 @@ export default {
 </script>
 
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active em versões anteriores a 2.1.8 */ {
+  opacity: 0;
+}
+
 .no-margin {
   margin: 0;
 }

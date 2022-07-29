@@ -38,7 +38,7 @@
             </v-col>
           </v-row>
         </v-toolbar>
-        <v-tabs background-color="#f2f2f2">
+        <v-tabs v-model="tab" background-color="#f2f2f2">
           <v-tab>
             <v-icon left> {{ mdiListStatus }} </v-icon>
             Status
@@ -57,27 +57,15 @@
             <v-icon left> {{ mdiFileTableBoxMultipleOutline }} </v-icon>
             Autoconfig
           </v-tab>
-          <v-tab-item>
-            <v-card flat>
-              <StatusTab v-bind:searchText="search" />
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <LogsTab v-bind:searchText="search" />
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <ps-tab v-bind:searchText="search" />
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <v-card-title>Redirecting to GitHub...</v-card-title>
-            </v-card>
-          </v-tab-item>
         </v-tabs>
+        <v-card flat>
+          <status-tab
+            v-if="tab === 0 || tab === 2"
+            v-bind:psOnly="tab === 2"
+            v-bind:searchText="search"
+          />
+          <logs-tab v-else v-bind:searchText="search" />
+        </v-card>
       </v-card>
     </v-main>
     <FooterBar />
@@ -102,11 +90,9 @@
 <script>
 import { PublicClientApplication } from "@azure/msal-browser";
 import StatusTab from "./components/StatusTab";
-import LogsTab from "./components/LogsTab";
 import FooterBar from "./components/FooterBar";
 import ConfirmDialog from "./components/ConfirmDialog";
 import LoginMenu from "./components/LoginMenu";
-import PsTab from "./components/PsTab";
 import {
   mdiListStatus,
   mdiClockAlertOutline,
@@ -117,6 +103,7 @@ import {
   mdiMagnify,
   mdiRefresh,
 } from "@mdi/js";
+import LogsTab from "./components/LogsTab.vue";
 
 export default {
   name: "App",
@@ -124,6 +111,7 @@ export default {
     return {
       searchPreset: "",
       search: "",
+      tab: "",
       mdiListStatus,
       mdiClockAlertOutline,
       mdiClose,
@@ -137,11 +125,10 @@ export default {
 
   components: {
     StatusTab,
-    LogsTab,
     FooterBar,
     ConfirmDialog,
     LoginMenu,
-    PsTab,
+    LogsTab,
   },
 
   async created() {
@@ -212,6 +199,7 @@ export default {
       hidden_link.href = download;
       hidden_link.download = "beaglebones.csv";
       hidden_link.click();
+      console.log(this.tab);
     },
   },
 };

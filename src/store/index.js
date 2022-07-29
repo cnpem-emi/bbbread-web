@@ -40,6 +40,9 @@ const store = new Vuex.Store({
             state.snackbar = true;
             state.message = message;
         },
+        hide_snackbar(state) {
+            state.snackbar = false;
+        },
         async update_beaglebones(state) {
             state.loading = true;
             let config = {
@@ -61,8 +64,9 @@ const store = new Vuex.Store({
             );
             state.loading = false;
         },
-        hide_snackbar(state) {
-            state.snackbar = false;
+        show_beaglebone(state, beaglebone) {
+            console.log(state.beaglebones[state.beaglebones.findIndex(i => (i.key === beaglebone))]);
+            state.beaglebones[state.beaglebones.findIndex(i => (i.key === beaglebone))].show = true;
         }
     }
 });

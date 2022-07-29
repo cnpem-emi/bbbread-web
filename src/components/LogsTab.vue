@@ -10,6 +10,7 @@
       :show-select="$store.state.account !== undefined"
       :sort-desc="true"
       item-key="id"
+      @click:row="row_click"
       v-model="selected"
     >
       <template v-slot:item.actions="{ item }">
@@ -135,8 +136,13 @@ export default {
         this.get_all();
       }
     },
+    row_click(item) {
+      this.$store.commit(
+        "show_beaglebone",
+        `BBB:${item.ip_address}:${item.name}`
+      );
+    },
   },
-
   created() {
     this.get_all();
     this.interval = setInterval(this.get_all, 25000);
