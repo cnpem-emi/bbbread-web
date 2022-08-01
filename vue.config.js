@@ -1,34 +1,30 @@
 var fs = require('fs');
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 module.exports = {
-  publicPath: '',
-  transpileDependencies: [
-    'vuetify'
-  ],
+  publicPath: process.env.NODE_ENV === 'production' ? '/bbbread/' : '/',
+
   chainWebpack: config => {
-    config.plugin('VuetifyLoaderPlugin').tap(args => [{
-      match(originalTag, { kebabTag, camelTag, path, component }) {
-        if (kebabTag.startsWith('core-')) {
-          return [camelTag, `import ${camelTag} from '@/components/core/${camelTag.substring(4)}.vue'`]
-        }
-      }
-    }]),
-      config
-        .plugin('html')
-        .tap(args => {
-          args[0].title = "BBBread Web GUI";
-          return args;
-        })
+    config
+      .plugin('html')
+      .tap(args => {
+        args[0].title = "BBBread";
+        return args;
+      })
   },
   devServer: {
     open: process.platform === 'darwin',
     host: '0.0.0.0',
-    https: process.env.NODE_ENV !== "production" ? {
+    https: process.env.NODE_ENV === "development" ? {
       key: fs.readFileSync('./sim.key'),
       cert: fs.readFileSync('./sim.crt'),
     } : undefined,
     port: 8085,
-    hotOnly: false,
   },
-}
+  configureWebpack: {
+    optimization: {
+    splitChunks: {
+            minSize: 10000,
+            maxSize: 250000,
+        }
+  }}
+};

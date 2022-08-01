@@ -39,10 +39,10 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn color="red darken-1" text @click="act_service('stop')">
+        <v-btn color="red darken-1" text @click="actService('stop')">
           Stop
         </v-btn>
-        <v-btn color="blue darken-1" text @click="act_service('restart')">
+        <v-btn color="blue darken-1" text @click="actService('restart')">
           Restart
         </v-btn>
       </v-card-actions>
@@ -66,7 +66,7 @@ export default {
     };
   },
   methods: {
-    async act_service(action) {
+    async actService(action) {
       let confirmation = await this.$root.$confirm(
         "Confirmation",
         `Are you sure you want to perform this action on ${
@@ -85,7 +85,7 @@ export default {
         services.push(this.custom_service);
       }
 
-      const response = await this.send_command(
+      const response = await this.sendCommand(
         "beaglebones/services",
         this.items.map((b) => {
           return { key: b.key, [action]: services };
@@ -95,7 +95,7 @@ export default {
 
       if (response.status === 200) {
         this.$store.commit(
-          "show_snackbar",
+          "showSnackbar",
           `Successfully applied changes to ${this.items[0].name} ${
             this.items.length > 1
               ? `and other ${this.items.length - 1} nodes`
@@ -105,7 +105,7 @@ export default {
         this.$emit("closeDialog");
       } else {
         this.$store.commit(
-          "show_snackbar",
+          "showSnackbar",
           "Failed to apply actions (check your authentication)"
         );
       }

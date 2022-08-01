@@ -18,7 +18,7 @@
                   label="Search"
                   :value="searchPreset"
                 ></v-text-field>
-                <v-btn @click="$store.commit('update_beaglebones')" icon
+                <v-btn @click="$store.commit('updateBeaglebones')" icon
                   ><v-icon>{{ mdiRefresh }}</v-icon></v-btn
                 >
               </v-row>
@@ -26,7 +26,7 @@
             <v-col>
               <v-row justify="center" align="center">
                 <v-spacer />
-                <v-btn icon @click="get_csv"
+                <v-btn icon @click="getCsv"
                   ><v-icon>{{ mdiFileDownload }}</v-icon></v-btn
                 >
                 <LoginMenu
@@ -79,7 +79,7 @@
       {{ $store.state.message }}
 
       <template v-slot:action="{ attrs }">
-        <v-btn icon text v-bind="attrs" @click="$store.commit('hide_snackbar')">
+        <v-btn icon text v-bind="attrs" @click="$store.commit('hideSnackbar')">
           <v-icon>{{ mdiClose }}</v-icon>
         </v-btn>
       </template>
@@ -136,7 +136,7 @@ export default {
       this.$store.state.msalConfig
     );
 
-    this.$store.commit("set_instance", msalInstance);
+    this.$store.commit("setInstance", msalInstance);
   },
   async mounted() {
     this.$root.$confirm = this.$refs.confirm.open;
@@ -146,10 +146,10 @@ export default {
       return;
     }
     accounts[0].initials = this.getInitials(accounts[0]);
-    this.$store.commit("set_account", accounts[0]);
+    this.$store.commit("setAccount", accounts[0]);
 
-    let query_string = new URLSearchParams(window.location.search);
-    this.search_preset = query_string.get("search") ?? "";
+    let queryString = new URLSearchParams(window.location.search);
+    this.searchPreset = queryString.get("search") ?? "";
   },
   methods: {
     async login() {
@@ -158,13 +158,13 @@ export default {
         .then(() => {
           const accounts = this.$store.state.msalInstance.getAllAccounts();
           accounts[0].initials = this.getInitials(accounts[0]);
-          this.$store.commit("set_account", accounts[0]);
+          this.$store.commit("setAccount", accounts[0]);
         })
         .catch((error) => {
           console.error(`Error during authentication: ${error}`);
         });
       this.$store.commit(
-        "show_snackbar",
+        "showSnackbar",
         `Logged in as ${this.$store.state.account.username}`
       );
     },
@@ -176,29 +176,29 @@ export default {
     getInitials(account) {
       return account.name.split(" ")[0].substring(0, 1);
     },
-    async get_csv() {
-      const response = await this.send_command("beaglebones");
-      const resp_json = await response.json();
+    async getCsv() {
+      const response = await this.sendCommand("beaglebones");
+      const respJson = await response.json();
 
-      let csv = Object.keys(resp_json[0]).join(",");
+      let csv = Object.keys(respJson[0]).join(",");
 
-      for (let beagle of resp_json) csv += "\n" + Object.values(beagle);
+      for (let beagle of respJson) csv += "\n" + Object.values(beagle);
 
-      var utf_arr = new Uint16Array(
+      var utfArr = new Uint16Array(
         csv.split("").map(function (k) {
           return k.charCodeAt(0);
         })
       );
 
       const download = URL.createObjectURL(
-        new Blob([utf_arr], { type: "text/csv;charset=UTF-16LE;" })
+        new Blob([utfArr], { type: "text/csv;charset=UTF-16LE;" })
       );
 
       // This is hackish, but seems to be the best way without opening a new window
-      let hidden_link = document.createElement("a");
-      hidden_link.href = download;
-      hidden_link.download = "beaglebones.csv";
-      hidden_link.click();
+      let hiddenLink = document.createElement("a");
+      hiddenLink.href = download;
+      hiddenLink.download = "beaglebones.csv";
+      hiddenLink.click();
     },
   },
 };

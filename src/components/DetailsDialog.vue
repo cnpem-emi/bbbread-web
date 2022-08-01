@@ -205,14 +205,14 @@ export default {
       if (confirmation) {
         let reply;
         try {
-          reply = await this.send_command(
+          reply = await this.sendCommand(
             "beaglebones",
             { [action.toLowerCase()]: [this.item.key] },
             "POST"
           );
         } catch (err) {
           this.$store.commit(
-            "show_snackbar",
+            "showSnackbar",
             "Failed to send command! Check the console (F12) for more information"
           );
           console.error(err);
@@ -220,12 +220,12 @@ export default {
 
         if (reply.status === 200) {
           this.$store.commit(
-            "show_snackbar",
+            "showSnackbar",
             `Successfully applied changes to ${this.item.name}!`
           );
         } else {
           this.$store.commit(
-            "show_snackbar",
+            "showSnackbar",
             "Failed to send command! Check the console (F12) for more information"
           );
           console.error(reply);
@@ -234,7 +234,7 @@ export default {
     },
   },
   async mounted() {
-    const response = await this.send_command(
+    const response = await this.sendCommand(
       `beaglebones/details/${this.item.key}`
     );
     this.values = await response.json();

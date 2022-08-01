@@ -10,7 +10,7 @@ export const equipments = [
   "Unknown",
 ];
 
-export const possible_statuses = ["Disconnected", "Connected", "Moved"];
+export const possibleStatuses = ["Disconnected", "Connected", "Moved"];
 export const actions = ["Reboot", "Delete", "Services"];
-export const ip_types = ["Static", "DHCP", "Undetermined"];
+export const ipTypes = ["Static", "DHCP", "Undetermined"];
 export const rooms = ["All", "TL", "RF", "Power Supplies", "Connectivity", "Others"];

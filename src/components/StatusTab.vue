@@ -1,20 +1,21 @@
 <template>
   <v-container fluid>
     <ToolBar v-bind:search="search" />
+    <v-divider />
     <v-data-table
       :headers="headers"
-      :items="filtered_beagles"
+      :items="filteredBeagles"
       :search="searchText"
       :loading="$store.state.loading"
       item-key="key"
       :show-select="$store.state.account !== undefined"
-      @toggle-select-all="toggle_select"
-      @click:row="row_click"
+      @toggle-select-all="toggleSelect"
+      @click:row="rowClick"
       v-model="selected"
       class="row-pointer"
     >
       <template v-slot:item.state_string="{ item }">
-        <v-chip :color="get_color(item.state_string)" dark>
+        <v-chip :color="getColor(item.state_string)" dark>
           {{ item.state_string }}
         </v-chip>
         <details-dialog
@@ -32,7 +33,7 @@
             color="red"
             :disabled="$store.state.account === undefined"
             dark
-            @click="perform_action(false, action)"
+            @click="performAction(false, action)"
             style="margin: 10px 10px 10px 0; flex-shrink: 1"
             >{{ action }}</v-btn
           >
@@ -48,26 +49,24 @@
 
     <services-dialog
       v-bind:items="selected"
-      :dialog="service_dialog"
-      @closeDialog="service_dialog = false"
+      :dialog="serviceDialog"
+      @closeDialog="serviceDialog = false"
   /></v-container>
 </template>
 
 <script>
-import ToolBar from "./ToolBar";
-import DetailsDialog from "./DetailsDialog";
-import { equipments, ip_types, possible_statuses } from "../assets/constants";
+import ToolBar from "@/components/ToolBar";
+import DetailsDialog from "@/components/DetailsDialog";
+import { equipments, ipTypes, possibleStatuses } from "@/assets/constants";
 import { mdiClock, mdiTextBoxSearchOutline } from "@mdi/js";
-import ServicesDialog from "./ServicesDialog";
+import ServicesDialog from "@/components/ServicesDialog";
 
 export default {
   components: { ToolBar, DetailsDialog, ServicesDialog },
-  props: ["refresh", "searchText", "psOnly"],
+  props: ["searchText", "psOnly"],
   data() {
     return {
-      filter: {},
-      service_dialog: false,
-      details_dialog: false,
+      serviceDialog: false,
       page: 1,
       itemsPerPage: 8,
       selected: [],
@@ -79,14 +78,11 @@ export default {
         { text: "Status", value: "state_string" },
         { text: "Role", value: "role" },
       ],
-      items: [],
-      symbols: {},
-      loading_bbbs: true,
       search: {
-        statuses: possible_statuses,
+        statuses: possibleStatuses,
         room: "All",
         equipments: equipments,
-        ip_types: ip_types,
+        ipTypes: ipTypes,
       },
       mdiClock,
       mdiTextBoxSearchOutline,
@@ -98,7 +94,7 @@ export default {
     },
   },
   computed: {
-    filtered_beagles() {
+    filteredBeagles() {
       return this.$store.state.beaglebones.filter((i) => {
         return (
           i.name &&
@@ -106,7 +102,7 @@ export default {
           (i.name.indexOf(this.searchText) !== -1 ||
             i.ip_address.indexOf(this.searchText) !== -1) &&
           this.search.statuses.some((j) => i.state_string.includes(j)) &&
-          this.search.ip_types.includes(i.ip_type) &&
+          this.search.ipTypes.includes(i.ip_type) &&
           (this.search.room === i.sector || this.search.room === "All") &&
           this.search.equipments.includes(i.equipment)
         );
@@ -114,14 +110,14 @@ export default {
     },
   },
   methods: {
-    toggle_select(selected) {
+    toggleSelect(selected) {
       if (!selected.value) this.selected = [];
       else this.selected = selected.items;
     },
-    row_click(item) {
+    rowClick(item) {
       item.show = true;
     },
-    async perform_action(item, action) {
+    async performAction(item, action) {
       if (item) this.selected = [item];
       else item = this.selected[0];
 
@@ -140,19 +136,19 @@ export default {
         let reply;
 
         try {
-          reply = await this.send_command(
+          reply = await this.sendCommand(
             "beaglebones",
             { [action.toLowerCase()]: this.selected.map((b) => b.key) },
             "POST"
           );
         } catch (err) {
           console.error(err);
-          this.$store.commit("show_snackbar", "Failed to send command! ");
+          this.$store.commit("showSnackbar", "Failed to send command! ");
         }
 
         if (reply.status === 200) {
           this.$store.commit(
-            "show_snackbar",
+            "showSnackbar",
             `Successfully applied changes to ${this.selected[0]["name"]} ${
               this.selected.length > 1
                 ? `and other ${this.selected.length - 1} nodes`
@@ -161,24 +157,24 @@ export default {
           );
         } else if (reply.status == 401) {
           this.$store.commit(
-            "show_snackbar",
+            "showSnackbar",
             "Failed to send command! You don't have the required permissions"
           );
         } else {
           this.$store.commit(
-            "show_snackbar",
+            "showSnackbar",
             "Failed to send command! Please try reloading the page or relogging"
           );
         }
 
         this.selected = [];
       } else {
-        this.service_dialog = true;
+        this.serviceDialog = true;
       }
 
-      this.$store.commit("update_beaglebones");
+      this.$store.commit("updateBeaglebones");
     },
-    get_color(item) {
+    getColor(item) {
       switch (item) {
         case "Disconnected":
           return "red";
@@ -190,10 +186,7 @@ export default {
     },
   },
   created() {
-    this.interval = setInterval(
-      this.$store.commit("update_beaglebones"),
-      25000
-    );
+    this.interval = setInterval(this.$store.commit("updateBeaglebones"), 25000);
   },
 };
 </script>

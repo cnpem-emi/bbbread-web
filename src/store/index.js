@@ -24,26 +24,23 @@ const store = new Vuex.Store({
         loading: false
     },
     mutations: {
-        set_token(state, token) {
-            state.accessToken = token;
-        },
-        set_instance(state, msalInstance) {
+        setInstance(state, msalInstance) {
             state.msalInstance = msalInstance;
         },
-        set_account(state, account) {
+        setAccount(state, account) {
             state.account = account;
         },
-        set_url(state, url) {
+        setUrl(state, url) {
             state.url = url;
         },
-        show_snackbar(state, message) {
+        showSnackbar(state, message) {
             state.snackbar = true;
             state.message = message;
         },
-        hide_snackbar(state) {
+        hideSnackbar(state) {
             state.snackbar = false;
         },
-        async update_beaglebones(state) {
+        async updateBeaglebones(state) {
             state.loading = true;
             let config = {
                 method: "GET",

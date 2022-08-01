@@ -11,13 +11,13 @@
       </v-toolbar>
       <v-card-text v-show="message" class="pa-4"
         >{{ message }}
-        <v-checkbox v-model="user_sure" label="Yes, I'm absolutely sure"
+        <v-checkbox v-model="userSure" label="Yes, I'm absolutely sure"
       /></v-card-text>
 
       <v-card-actions class="pt-0">
         <v-spacer></v-spacer>
         <v-btn
-          :disabled="!user_sure"
+          :disabled="!userSure"
           color="primary darken-1"
           text
           @click.native="agree"
@@ -33,7 +33,7 @@
 export default {
   data() {
     return {
-      user_sure: false,
+      userSure: false,
       dialog: false,
       resolve: null,
       reject: null,
@@ -42,8 +42,8 @@ export default {
     };
   },
   methods: {
-    open(title, message, checkbox=false) {
-      this.user_sure=checkbox;
+    open(title, message, checkbox = false) {
+      this.userSure = checkbox;
       this.dialog = true;
       this.title = title;
       this.message = message;

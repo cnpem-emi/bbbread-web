@@ -18,10 +18,8 @@
                   dense
                   label="IP Address"
                   outlined
-                  :append-icon="
-                    new_ip !== item.ip_address ? `${mdiPencil}` : ''
-                  "
-                  v-model="new_ip"
+                  :append-icon="newIp !== item.ip_address ? `${mdiPencil}` : ''"
+                  v-model="newIp"
                   :value="item.ip_address"
                   hide-details
                   :disabled="dhcp"
@@ -48,9 +46,9 @@
                   dense
                   label="Hostname"
                   outlined
-                  v-model="new_name"
+                  v-model="newName"
                   :value="item.name"
-                  :append-icon="new_name !== item.name ? `${mdiPencil}` : ''"
+                  :append-icon="newName !== item.name ? `${mdiPencil}` : ''"
                   hide-details
                 ></v-text-field>
               </v-col>
@@ -61,10 +59,10 @@
                   dense
                   label="Nameserver 1"
                   outlined
-                  v-model="new_nameserver1"
-                  :value="get_nameserver(0)"
+                  v-model="newNameserver1"
+                  :value="getNameserver(0)"
                   :append-icon="
-                    new_nameserver1 !== get_nameserver(0) ? `${mdiPencil}` : ''
+                    newNameserver1 !== getNameserver(0) ? `${mdiPencil}` : ''
                   "
                   :rules="[rules.ip]"
                   hide-details
@@ -76,10 +74,10 @@
                   dense
                   label="Nameserver 2"
                   outlined
-                  v-model="new_nameserver2"
-                  :value="get_nameserver(1)"
+                  v-model="newNameserver2"
+                  :value="getNameserver(1)"
                   :append-icon="
-                    new_nameserver2 !== get_nameserver(1) ? `${mdiPencil}` : ''
+                    newNameserver2 !== getNameserver(1) ? `${mdiPencil}` : ''
                   "
                   :rules="[rules.ip]"
                   hide-details
@@ -107,10 +105,10 @@ export default {
   data: function () {
     return {
       dhcp: this.item.ip_type === "DHCP",
-      new_ip: this.item.ip_address,
-      new_name: this.item.name,
-      new_nameserver1: this.get_nameserver(0),
-      new_nameserver2: this.get_nameserver(1),
+      newIp: this.item.ip_address,
+      newName: this.item.name,
+      newNameserver1: this.getNameserver(0),
+      newNameserver2: this.getNameserver(1),
       rules: {
         ip: (value) => {
           const pattern =
@@ -123,7 +121,7 @@ export default {
     };
   },
   methods: {
-    get_nameserver(index) {
+    getNameserver(index) {
       if (!this.item.nameservers) return "";
 
       return this.item.nameservers[index];
@@ -140,35 +138,35 @@ export default {
 
       let body = { key: this.item.key };
       if (
-        this.new_nameserver2 !== this.get_nameserver(1) ||
-        this.new_nameserver1 !== this.get_nameserver(0)
+        this.newNameserver2 !== this.getNameserver(1) ||
+        this.newNameserver1 !== this.getNameserver(0)
       ) {
         Object.assign(body, {
-          nameservers: [this.new_nameserver1, this.new_nameserver2],
+          nameservers: [this.newNameserver1, this.newNameserver2],
         });
       }
 
-      if (this.new_name !== this.item.name)
-        Object.assign(body, { hostname: this.new_name });
+      if (this.newName !== this.item.name)
+        Object.assign(body, { hostname: this.newName });
 
       if (
-        this.new_ip !== this.item.ip_address ||
+        this.newIp !== this.item.ip_address ||
         this.dhcp !== (this.item.ip_type === "DHCP")
       ) {
-        let ip_subdiv = this.new_ip.split(".");
-        ip_subdiv[ip_subdiv.length - 1] = "1";
+        let ipSubdiv = this.newIp.split(".");
+        ipSubdiv[ipSubdiv.length - 1] = "1";
         Object.assign(body, {
           type: this.dhcp ? "dhcp" : "manual",
-          ip: this.new_ip,
+          ip: this.newIp,
           mask: "255.255.255.0",
-          gateway: ip_subdiv.join("."),
+          gateway: ipSubdiv.join("."),
         });
       }
 
       if (body !== { key: this.item.key }) {
-        await this.send_command("beaglebones/networking", [body], "POST");
+        await this.sendCommand("beaglebones/networking", [body], "POST");
         this.$store.commit(
-          "show_snackbar",
+          "showSnackbar",
           `Successfully applied changes to ${this.item.name}!`
         );
         this.$emit("closeDialog");

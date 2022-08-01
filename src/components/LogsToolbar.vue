@@ -5,14 +5,14 @@
         <v-col cols="2">
           <v-dialog
             ref="dialog"
-            v-model="date_dialog"
-            :return-value.sync="date_range"
+            v-model="dateDialog"
+            :return-value.sync="dateRange"
             persistent
             width="290px"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
-                v-model="date_text"
+                v-model="dateText"
                 label="Log Date Range"
                 :prepend-icon="mdiCalendar"
                 readonly
@@ -22,22 +22,22 @@
                 hide-details
                 clearable
                 @click:clear="
-                  date_range = [];
-                  $emit('date', date_range);
+                  dateRange = [];
+                  $emit('date', dateRange);
                 "
               ></v-text-field>
             </template>
-            <v-date-picker v-model="date_range" scrollable range>
+            <v-date-picker v-model="dateRange" scrollable range>
               <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="date_dialog = false">
+              <v-btn text color="primary" @click="dateDialog = false">
                 Cancel
               </v-btn>
               <v-btn
                 text
                 color="primary"
                 @click="
-                  $refs.dialog.save(date_range);
-                  $emit('date', date_range);
+                  $refs.dialog.save(dateRange);
+                  $emit('date', dateRange);
                 "
               >
                 OK
@@ -54,25 +54,21 @@
 </template>
 
 <script>
-import { possible_statuses } from "../assets/constants";
-import { mdiRefresh, mdiCalendar, mdiMagnify } from "@mdi/js";
+import { mdiRefresh, mdiCalendar } from "@mdi/js";
 export default {
   props: ["search"],
   data() {
     return {
       filter: {},
-      possible_statuses: possible_statuses,
-      dropdown: false,
-      date_range: [],
-      date_dialog: false,
-      mdiMagnify,
+      dateRange: [],
+      dateDialog: false,
       mdiCalendar,
       mdiRefresh,
     };
   },
   computed: {
-    date_text() {
-      return this.date_range.join(" ~ ");
+    dateText() {
+      return this.dateRange.join(" ~ ");
     },
   },
 };

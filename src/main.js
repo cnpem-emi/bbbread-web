@@ -8,7 +8,7 @@ Vue.prototype.$msalInstance = {};
 
 Vue.mixin({
   methods: {
-    async send_command(endpoint, body, method = "GET") {
+    async sendCommand(endpoint, body, method = "GET") {
       let config = {
         method: method,
         headers: { "Content-Type": "application/json" },
@@ -16,7 +16,7 @@ Vue.mixin({
 
       if (method !== "GET") {
         config["body"] = JSON.stringify(body);
-        config["headers"]["Authorization"] = `Bearer ${await this.get_token()}`;
+        config["headers"]["Authorization"] = `Bearer ${await this.getToken()}`;
       }
 
       const response = await fetch(
@@ -26,7 +26,7 @@ Vue.mixin({
 
       return response;
     },
-    async get_token() {
+    async getToken() {
       let token;
       try {
         token = await this.$store.state.msalInstance.acquireTokenSilent({
@@ -56,7 +56,7 @@ if (window.location.host === "vpn.cnpem.br") {
   const ipRegExp =
     /https?\/((?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])))\//;
   const match = ipRegExp.exec(window.location.href);
-  if (match && match.length > 1) store.commit("set_url", match[1]);
+  if (match && match.length > 1) store.commit("setUrl", match[1]);
 } else {
-  if (process.env.NODE_ENV !== "development") store.commit("set_url", window.location.host);
+  if (process.env.NODE_ENV !== "development") store.commit("setUrl", window.location.host);
 }
