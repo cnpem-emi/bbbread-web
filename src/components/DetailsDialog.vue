@@ -143,8 +143,8 @@ import {
   mdiTextBoxSearchOutline,
 } from "@mdi/js";
 
-import NetworkingDialog from "./NetworkingDialog";
-import ServicesDialog from "./ServicesDialog";
+import NetworkingDialog from "@/components/NetworkingDialog";
+import ServicesDialog from "@/components/ServicesDialog";
 
 export default {
   props: ["item", "dialog"],

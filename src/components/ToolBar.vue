@@ -52,7 +52,7 @@ import {
   ipTypes,
   possibleStatuses,
   rooms,
-} from "../assets/constants.js";
+} from "@/assets/constants.js";
 import { mdiEye, mdiRefresh, mdiMagnify, mdiCloseCircle, mdiIp } from "@mdi/js";
 
 export default {

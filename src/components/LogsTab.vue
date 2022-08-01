@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import LogsToolbar from "@/LogsToolbar";
+import LogsToolbar from "@/components/LogsToolbar";
 import { mdiDelete } from "@mdi/js";
 
 export default {

@@ -89,10 +89,10 @@
 
 <script>
 import { PublicClientApplication } from "@azure/msal-browser";
-import StatusTab from "./components/StatusTab";
-import FooterBar from "./components/FooterBar";
-import ConfirmDialog from "./components/ConfirmDialog";
-import LoginMenu from "./components/LoginMenu";
+import StatusTab from "@/components/StatusTab";
+import FooterBar from "@/components/FooterBar";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import LoginMenu from "@/components/LoginMenu";
 import {
   mdiListStatus,
   mdiClockAlertOutline,
