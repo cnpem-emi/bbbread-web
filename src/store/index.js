@@ -52,12 +52,12 @@ const store = new Vuex.Store({
                 config,
             );
 
-            const resp_json = await response.json();
+            const respJson = await response.json();
 
-            if (!state.beaglebones.length) state.beaglebones = resp_json;
+            if (!state.beaglebones.length) state.beaglebones = respJson;
 
             state.beaglebones = state.beaglebones.map((item, i) =>
-                Object.assign({}, { show: item.show ?? false }, resp_json[i])
+                Object.assign({}, { show: item.show ?? false }, respJson[i])
             );
             state.loading = false;
         }
