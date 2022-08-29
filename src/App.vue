@@ -137,6 +137,8 @@ export default {
     );
 
     this.$store.commit("setInstance", msalInstance);
+    this.$store.commit("updateBeaglebones", msalInstance);
+    this.interval = setInterval(this.$store.commit, 15000, "updateBeaglebones");
   },
   async mounted() {
     this.$root.$confirm = this.$refs.confirm.open;

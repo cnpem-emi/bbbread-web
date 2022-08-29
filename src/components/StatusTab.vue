@@ -185,9 +185,6 @@ export default {
       }
     },
   },
-  created() {
-    this.interval = setInterval(this.$store.commit, 25000, "updateBeaglebones");
-  },
 };
 </script>
 
