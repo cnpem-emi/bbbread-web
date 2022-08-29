@@ -16,7 +16,7 @@
                   hide-details
                   :prepend-inner-icon="mdiMagnify"
                   label="Search"
-                  :value="searchPreset"
+                  :value="search"
                 ></v-text-field>
                 <v-btn @click="$store.commit('updateBeaglebones')" icon
                   ><v-icon>{{ mdiRefresh }}</v-icon></v-btn
@@ -109,7 +109,6 @@ export default {
   name: "App",
   data() {
     return {
-      searchPreset: "",
       search: "",
       tab: "",
       mdiListStatus,
@@ -151,7 +150,7 @@ export default {
     this.$store.commit("setAccount", accounts[0]);
 
     let queryString = new URLSearchParams(window.location.search);
-    this.searchPreset = queryString.get("search") ?? "";
+    this.search = queryString.get("search") ?? "";
   },
   methods: {
     async login() {
