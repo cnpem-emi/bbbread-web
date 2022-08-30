@@ -3,8 +3,9 @@
     :value="dialog"
     max-width="800px"
     @click:outside="$emit('closeDialog')"
+    loading
   >
-    <v-card>
+    <v-card :loading="loading">
       <v-card-title>
         <span class="text-h5">Networking</span>
       </v-card-title>
@@ -118,6 +119,7 @@ export default {
       },
       mdiPencil,
       valid: true,
+      loading: false,
     };
   },
   methods: {
@@ -136,6 +138,7 @@ export default {
 
       if (!confirmation) return;
 
+      this.loading = true;
       let body = { key: this.item.key };
       if (
         this.newNameserver2 !== this.getNameserver(1) ||
@@ -163,6 +166,7 @@ export default {
         });
       }
 
+      this.loading = false;
       if (body !== { key: this.item.key }) {
         await this.sendCommand("beaglebones/networking", [body], "POST");
         this.$store.commit(

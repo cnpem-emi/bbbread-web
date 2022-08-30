@@ -8,29 +8,40 @@
       <v-card-title>
         <span class="text-h5">{{ item.name }}</span>
         <v-spacer />
-        <v-menu>
+        <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               :disabled="$store.state.account === undefined"
               icon
               v-bind="attrs"
               v-on="on"
+              @click="confirm('reboot')"
+              color="red"
             >
               <v-icon>
-                {{ mdiDotsVertical }}
+                {{ mdiPowerCycle }}
               </v-icon>
             </v-btn>
           </template>
-          <v-list>
-            <v-list-item
-              v-for="(item, index) in actions"
-              :key="index"
-              @click="confirm(item.title)"
+          <span>Reboot Beaglebone</span>
+        </v-tooltip>
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              :disabled="$store.state.account === undefined"
+              icon
+              v-bind="attrs"
+              v-on="on"
+              @click="confirm('delete')"
+              color="red"
             >
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+              <v-icon>
+                {{ mdiDeleteForever }}
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>Delete Beaglebone</span>
+        </v-tooltip>
       </v-card-title>
       <v-card-subtitle style="padding-bottom: 5px">
         {{ item.ip_address }}
@@ -115,17 +126,24 @@
           style="justify: center"
           >Last seen at {{ item.last_seen }}</span
         >
+        <v-spacer />
+        <v-btn outlined dense color="blue" @click="confirm('services')"
+          >Services</v-btn
+        >
+        <v-btn outlined dense color="blue" @click="confirm('networking')"
+          >Networking</v-btn
+        >
       </v-card-actions>
     </v-card>
     <ServicesDialog
       v-bind:items="[item]"
-      :dialog="service_dialog"
-      @closeDialog="service_dialog = false"
+      :dialog="serviceDialog"
+      @closeDialog="update"
     />
     <NetworkingDialog
       v-bind:item="item"
-      :dialog="networking_dialog"
-      @closeDialog="networking_dialog = false"
+      :dialog="networkingDialog"
+      @closeDialog="update"
     />
   </v-dialog>
 </template>
@@ -135,12 +153,13 @@ import {
   mdiPower,
   mdiWeb,
   mdiIpNetwork,
-  mdiDelete,
   mdiDotsVertical,
   mdiHarddisk,
   mdiMapMarker,
   mdiDeveloperBoard,
   mdiTextBoxSearchOutline,
+  mdiDeleteForever,
+  mdiPowerCycle,
 } from "@mdi/js";
 
 import NetworkingDialog from "@/components/NetworkingDialog";
@@ -154,21 +173,16 @@ export default {
       mdiPower,
       mdiIpNetwork,
       mdiWeb,
-      mdiDelete,
+      mdiDeleteForever,
       mdiDotsVertical,
       mdiMapMarker,
       mdiHarddisk,
       mdiDeveloperBoard,
       mdiTextBoxSearchOutline,
-      service_dialog: false,
-      networking_dialog: false,
+      mdiPowerCycle,
+      serviceDialog: false,
+      networkingDialog: false,
       values: { details: "" },
-      actions: [
-        { title: "Delete", method: this.del },
-        { title: "Reboot", method: this.reboot },
-        { title: "Services", method: this.open_services },
-        { title: "Networking", method: this.open_networking },
-      ],
       details: [
         {
           title: "Nameservers",
@@ -188,19 +202,17 @@ export default {
   methods: {
     async confirm(action) {
       switch (action) {
-        case "Services":
-          this.service_dialog = true;
+        case "services":
+          this.serviceDialog = true;
           return;
-        case "Networking":
-          this.networking_dialog = true;
+        case "networking":
+          this.networkingDialog = true;
           return;
       }
 
       let confirmation = await this.$root.$confirm(
         "Confirmation",
-        `Are you sure you want to ${action.toLowerCase()} ${
-          this.item.ip_address
-        } (${this.item.name})?`
+        `Are you sure you want to ${action} ${this.item.ip_address} (${this.item.name})?`
       );
       if (confirmation) {
         let reply;
@@ -232,14 +244,20 @@ export default {
         }
       }
     },
+    async update() {
+      this.serviceDialog = false;
+      this.networkingDialog = false;
+
+      const response = await this.sendCommand(
+        `beaglebones/details/${this.item.key}`
+      );
+      this.values = await response.json();
+      this.details[0].value = this.values.nameservers;
+      this.values.disk_usage = this.values.disk_usage ?? "N/A";
+    },
   },
-  async mounted() {
-    const response = await this.sendCommand(
-      `beaglebones/details/${this.item.key}`
-    );
-    this.values = await response.json();
-    this.details[0].value = this.values.nameservers;
-    this.values.disk_usage = this.values.disk_usage ?? "N/A";
+  mounted() {
+    this.update();
   },
 };
 </script>
