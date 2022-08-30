@@ -71,13 +71,6 @@ export default {
       itemsPerPage: 8,
       selected: [],
       actions: ["Reboot", "Delete", "Services"],
-      headers: [
-        { text: "IP", align: "start", value: "ip_address" },
-        { text: "Hostname", value: "name" },
-        { text: "Power Supplies", value: "ps", width: "45%", align: " d-none" },
-        { text: "Status", value: "state_string" },
-        { text: "Role", value: "role" },
-      ],
       search: {
         statuses: possibleStatuses,
         room: "All",
@@ -87,11 +80,6 @@ export default {
       mdiClock,
       mdiTextBoxSearchOutline,
     };
-  },
-  watch: {
-    psOnly() {
-      this.headers[2].align = this.psOnly ? "start" : " d-none";
-    },
   },
   computed: {
     filteredBeagles() {
@@ -107,6 +95,23 @@ export default {
           this.search.equipments.includes(i.equipment)
         );
       });
+    },
+    headers() {
+      let headers = [
+        { text: "IP", align: "start", value: "ip_address" },
+        { text: "Hostname", value: "name" },
+        { text: "Status", value: "state_string" },
+        { text: "Role", value: "role" },
+      ];
+
+      if (!this.psOnly) return headers;
+
+      headers.splice(2, 0, {
+        text: "Power Supplies",
+        value: "ps",
+        width: "45%",
+      });
+      return headers;
     },
   },
   methods: {

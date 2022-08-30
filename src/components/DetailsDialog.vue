@@ -51,7 +51,7 @@
       <v-divider />
       <v-card-text style="padding-top: 15px">
         <v-row>
-          <v-col cols="6">
+          <v-col :cols="$vuetify.breakpoint.mdAndUp ? 6 : 12">
             <v-list-item>
               <v-list-item-icon>
                 <v-icon color="indigo">
@@ -103,7 +103,8 @@
               </v-list-item-content>
             </v-list-item>
           </v-col>
-          <v-col cols="6">
+          <v-col :cols="$vuetify.breakpoint.mdAndUp ? 6 : 12">
+            <v-divider v-if="$vuetify.breakpoint.smAndDown" />
             <v-list two-line>
               <v-list-item v-for="(item, index) in details" :key="index">
                 <v-list-item-icon>

@@ -1,33 +1,35 @@
 <template>
   <v-row dense justify="center">
-    <v-col cols="4" align-self="center">
-      <v-row>
-        <v-icon style="padding: 0 5px">{{ mdiEye }}</v-icon>
-        <v-btn-toggle
-          dense
-          color="blue"
-          v-model="search.statuses"
-          multiple
-          style="margin-right: 15px"
-        >
-          <v-btn
-            v-for="status in possibleStatuses"
-            :value="status"
-            :key="status"
-            small
-            >{{ status }}</v-btn
-          >
-        </v-btn-toggle>
-        <v-icon style="padding: 0 5px">{{ mdiIp }}</v-icon>
-        <v-btn-toggle dense color="blue" v-model="search.ipTypes" multiple>
-          <v-btn v-for="ip in ipTypes" :value="ip" :key="ip" small>{{
-            ip
-          }}</v-btn>
-        </v-btn-toggle>
+    <v-col
+      :cols="$vuetify.breakpoint.xl ? 4 : 12"
+      align-self="center"
+      style="text-align: center"
+    >
+      <v-row dense>
+        <v-col style="padding: 0" :cols="$vuetify.breakpoint.smAndUp ? 6 : 12">
+          <v-icon style="padding: 0 5px">{{ mdiEye }}</v-icon>
+          <v-btn-toggle dense color="blue" v-model="search.statuses" multiple>
+            <v-btn
+              v-for="status in possibleStatuses"
+              :value="status"
+              :key="status"
+              small
+              >{{ status }}</v-btn
+            >
+          </v-btn-toggle>
+        </v-col>
+        <v-col style="padding: 0" :cols="$vuetify.breakpoint.smAndUp ? 6 : 12">
+          <v-icon style="padding: 0 5px">{{ mdiIp }}</v-icon>
+          <v-btn-toggle dense color="blue" v-model="search.ipTypes" multiple>
+            <v-btn v-for="ip in ipTypes" :value="ip" :key="ip" small>{{
+              ip
+            }}</v-btn>
+          </v-btn-toggle>
+        </v-col>
       </v-row>
     </v-col>
 
-    <v-col cols="5" align-self="end">
+    <v-col :cols="$vuetify.breakpoint.mdAndUp ? 5 : 12" align-self="end">
       <v-combobox
         label="Equipments"
         multiple
@@ -40,7 +42,7 @@
       >
       </v-combobox>
     </v-col>
-    <v-col cols="2">
+    <v-col :cols="$vuetify.breakpoint.mdAndUp ? 2 : 12">
       <v-combobox label="Room" v-model="search.room" :items="rooms" />
     </v-col>
   </v-row>
@@ -54,7 +56,6 @@ import {
   rooms,
 } from "@/assets/constants.js";
 import { mdiEye, mdiRefresh, mdiMagnify, mdiCloseCircle, mdiIp } from "@mdi/js";
-
 export default {
   props: ["search"],
   data() {

@@ -4,7 +4,7 @@
       <v-card>
         <v-toolbar flat color="#0059b3" dark>
           <v-row dense>
-            <v-col align-self="center">
+            <v-col align-self="center" v-if="$vuetify.breakpoint.mdAndUp">
               <v-toolbar-title>BBBread</v-toolbar-title>
             </v-col>
             <v-col justify="center" align-self="center">
@@ -23,7 +23,7 @@
                 >
               </v-row>
             </v-col>
-            <v-col>
+            <v-col cols="4">
               <v-row justify="center" align="center">
                 <v-spacer />
                 <v-btn icon @click="getCsv"
@@ -38,7 +38,7 @@
             </v-col>
           </v-row>
         </v-toolbar>
-        <v-tabs v-model="tab" background-color="#f2f2f2">
+        <v-tabs show-arrows v-model="tab" background-color="#f2f2f2">
           <v-tab>
             <v-icon left> {{ mdiListStatus }} </v-icon>
             Status
