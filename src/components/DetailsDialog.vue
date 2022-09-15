@@ -128,22 +128,35 @@
           >Last seen at {{ item.last_seen }}</span
         >
         <v-spacer />
-        <v-btn outlined dense color="blue" @click="confirm('services')"
+        <v-btn
+          :disabled="$store.state.account === undefined"
+          outlined
+          dense
+          color="blue"
+          @click="confirm('services')"
           >Services</v-btn
         >
-        <v-btn outlined dense color="blue" @click="confirm('networking')"
+        <v-btn
+          :disabled="$store.state.account === undefined"
+          outlined
+          dense
+          color="blue"
+          @click="confirm('networking')"
           >Networking</v-btn
         >
       </v-card-actions>
     </v-card>
-    <ServicesDialog
+    <services-dialog
+      v-if="serviceDialog"
       v-bind:items="[item]"
       :dialog="serviceDialog"
       @closeDialog="update"
     />
-    <NetworkingDialog
+    <networking-dialog
+      v-if="networkingDialog"
       v-bind:item="item"
       :dialog="networkingDialog"
+      v-bind:nameservers="values.nameservers"
       @closeDialog="update"
     />
   </v-dialog>

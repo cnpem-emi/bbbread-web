@@ -48,6 +48,7 @@
     </v-data-table>
 
     <services-dialog
+      v-if="serviceDialog"
       v-bind:items="selected"
       :dialog="serviceDialog"
       @closeDialog="serviceDialog = false"

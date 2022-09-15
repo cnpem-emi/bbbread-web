@@ -42,13 +42,6 @@ export default {
       filter: {},
       page: 1,
       itemsPerPage: 8,
-      headers: [
-        { text: "Date", align: "start", value: "date" },
-        { text: "IP", value: "ip_address" },
-        { text: "Hostname", value: "name" },
-        { text: "Message", value: "message" },
-        { text: "Actions", value: "actions", sortable: false },
-      ],
       items: [],
       symbols: {},
       loading: true,
@@ -69,6 +62,23 @@ export default {
               (this.dateRange[0] < i.date && this.dateRange[1] > i.date))) ||
           this.dateRange[0] === i.date.substring(0, i.date.indexOf(" "))
       );
+    },
+    headers() {
+      let headers = [
+        { text: "Date", align: "start", value: "date" },
+        { text: "IP", value: "ip_address" },
+        { text: "Hostname", value: "name" },
+        { text: "Message", value: "message" },
+      ];
+
+      if (this.$store.state.account === undefined) return headers;
+
+      headers.push({
+        text: "Actions",
+        value: "actions",
+        sortable: false,
+      });
+      return headers;
     },
   },
   methods: {

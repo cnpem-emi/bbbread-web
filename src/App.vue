@@ -142,7 +142,7 @@ export default {
   async mounted() {
     this.$root.$confirm = this.$refs.confirm.open;
 
-    const accounts = this.$store.state.msalInstance.getAllAccounts();
+    const accounts = await this.$store.state.msalInstance.getAllAccounts();
     if (accounts.length == 0) {
       return;
     }
@@ -154,16 +154,18 @@ export default {
   },
   methods: {
     async login() {
-      await this.$store.state.msalInstance
-        .loginPopup({})
-        .then(() => {
-          const accounts = this.$store.state.msalInstance.getAllAccounts();
-          accounts[0].initials = this.getInitials(accounts[0]);
-          this.$store.commit("setAccount", accounts[0]);
-        })
-        .catch((error) => {
-          console.error(`Error during authentication: ${error}`);
-        });
+      await this.$store.state.msalInstance.handleRedirectPromise();
+
+      let accounts = this.$store.state.msalInstance.getAllAccounts();
+      
+      if (accounts[0] === undefined) {
+        await this.$store.state.msalInstance.loginPopup();
+        accounts = this.$store.state.msalInstance.getAllAccounts();
+      } 
+
+      accounts[0].initials = this.getInitials(accounts[0]);
+      this.$store.commit("setAccount", accounts[0]);
+
       this.$store.commit(
         "showSnackbar",
         `Logged in as ${this.$store.state.account.username}`

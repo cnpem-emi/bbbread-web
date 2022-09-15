@@ -102,7 +102,7 @@
 import { mdiPencil } from "@mdi/js";
 
 export default {
-  props: ["item", "dialog"],
+  props: ["item", "dialog", "nameservers"],
   data: function () {
     return {
       dhcp: this.item.ip_type === "DHCP",
@@ -124,9 +124,8 @@ export default {
   },
   methods: {
     getNameserver(index) {
-      if (!this.item.nameservers) return "";
-
-      return this.item.nameservers[index];
+      if (!this.nameservers) return "";
+      return this.nameservers.split(", ")[index];
     },
     async apply() {
       this.$refs.form.validate();
