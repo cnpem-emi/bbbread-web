@@ -84,8 +84,8 @@ describe('StatusTab.vue', () => {
 
     expect(rows.at(0).text()).toBe("10.0.0.1");
     expect(rows.at(1).text()).toBe("COUNTINGPRU-BBB");
-    expect(rows.at(3).text()).toBe("Connected");
-    expect(rows.at(4).text()).toBe("Primary");
+    expect(rows.at(2).text()).toBe("Connected");
+    expect(rows.at(3).text()).toBe("Primary");
   })
 
   it('only displays power supply attached Beaglebones when psOnly is true', () => {
